@@ -44,6 +44,20 @@ const Settings: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       biWeeklyReferenceDate: undefined,
     };
   });
+  const [activeTab, setActiveTab] = useState<'anniversary' | 'payday'>('anniversary');
+
+  useEffect(() => {
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    window.addEventListener('keydown', handleEscapeKey);
+    return () => {
+      window.removeEventListener('keydown', handleEscapeKey);
+    };
+  }, [onClose]);
 
   useEffect(() => {
     localStorage.setItem('events', JSON.stringify(events));
@@ -144,146 +158,170 @@ const Settings: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
   return (
     <div className="settings-panel glass-panel">
-      <h2 className="panel-title">纪念日设置</h2>
-      <div className="event-list">
-        {events.map((event, idx) => (
-          <div className="event-item" key={idx}>
-            <span>{event.label} ({event.date}) {event.isRecurring ? '(每年)' : '(单次)'}</span>
-            <div className="event-actions">
-              <button className="edit-event-btn" onClick={() => startEdit(idx)} title="编辑">编辑</button>
-              <button className="delete-event" onClick={() => removeEvent(idx)} title="删除" aria-label="删除">
-                ×
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-      <div className="add-event-section">
-        <input
-          type="text"
-          placeholder="纪念日名称"
-          value={newEvent.label}
-          onChange={e => setNewEvent({ ...newEvent, label: e.target.value })}
-          className="add-event-input"
-        />
-        <input
-          type="text"
-          placeholder="YYYY-MM-DD"
-          value={newDate}
-          onChange={e => {
-            setNewDate(e.target.value);
-            validateDate(e.target.value);
-          }}
-          className="add-event-input"
-        />
-        <label className="recurring-option">
-          <input
-            type="checkbox"
-            checked={newEvent.isRecurring}
-            onChange={e => setNewEvent({ ...newEvent, isRecurring: e.target.checked })}
-          />
-          每年重复
-        </label>
-        {editingIndex !== null && (
-          <button onClick={cancelEdit} className="cancel-edit-button">取消</button>
-        )}
-        <button onClick={addEvent} className="add-event-button">
-          {editingIndex !== null ? '保存' : '+'}
-        </button>
-      </div>
-      {dateError && <p style={{ color: '#ff4d4f', fontSize: '0.8em', marginTop: '5px' }}>{dateError}</p>}
-
-      {/* Payday Settings Section */}
-      <h2 className="panel-title" style={{ marginTop: '30px' }}>发工资设置</h2>
-      <div className="payday-settings-section">
-        <div className="payday-frequency">
-          <label>
-            <input
-              type="radio"
-              name="paydayType"
-              value="monthly"
-              checked={paydaySettings.type === 'monthly'}
-              onChange={e => setPaydaySettings({ ...paydaySettings, type: e.target.value as 'monthly' | 'weekly' | 'bi-weekly', dayOfWeek: undefined, biWeeklyReferenceDate: undefined })}
-            />
-            每月
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="paydayType"
-              value="weekly"
-              checked={paydaySettings.type === 'weekly'}
-              onChange={e => setPaydaySettings({ ...paydaySettings, type: e.target.value as 'monthly' | 'weekly' | 'bi-weekly', dayOfMonth: undefined, biWeeklyReferenceDate: undefined })}
-            />
-            每周
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="paydayType"
-              value="bi-weekly"
-              checked={paydaySettings.type === 'bi-weekly'}
-              onChange={e => setPaydaySettings({ ...paydaySettings, type: e.target.value as 'monthly' | 'weekly' | 'bi-weekly', dayOfMonth: undefined })}
-            />
-            每两周
-          </label>
+      <div className="settings-layout">
+        <div className="settings-tabs">
+          <button 
+            className={`settings-tab ${activeTab === 'anniversary' ? 'active' : ''}`}
+            onClick={() => setActiveTab('anniversary')}
+          >
+            纪念日
+          </button>
+          <button 
+            className={`settings-tab ${activeTab === 'payday' ? 'active' : ''}`}
+            onClick={() => setActiveTab('payday')}
+          >
+            工资设置
+          </button>
         </div>
+        <div className="settings-content">
+          {activeTab === 'anniversary' && (
+            <>
+              <h2 className="panel-title">纪念日设置</h2>
+              <div className="event-list">
+                {events.map((event, idx) => (
+                  <div className="event-item" key={idx}>
+                    <span>{event.label} ({event.date}) {event.isRecurring ? '(每年)' : '(单次)'}</span>
+                    <div className="event-actions">
+                      <button className="edit-event-btn" onClick={() => startEdit(idx)} title="编辑">编辑</button>
+                      <button className="delete-event" onClick={() => removeEvent(idx)} title="删除" aria-label="删除">
+                        ×
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="add-event-section">
+                <input
+                  type="text"
+                  placeholder="纪念日名称"
+                  value={newEvent.label}
+                  onChange={e => setNewEvent({ ...newEvent, label: e.target.value })}
+                  className="add-event-input"
+                />
+                <input
+                  type="text"
+                  placeholder="YYYY-MM-DD"
+                  value={newDate}
+                  onChange={e => {
+                    setNewDate(e.target.value);
+                    validateDate(e.target.value);
+                  }}
+                  className="add-event-input"
+                />
+                <label className="recurring-option">
+                  <input
+                    type="checkbox"
+                    checked={newEvent.isRecurring}
+                    onChange={e => setNewEvent({ ...newEvent, isRecurring: e.target.checked })}
+                  />
+                  每年重复
+                </label>
+                {editingIndex !== null && (
+                  <button onClick={cancelEdit} className="cancel-edit-button">取消</button>
+                )}
+                <button onClick={addEvent} className="add-event-button">
+                  {editingIndex !== null ? '保存' : '+'}
+                </button>
+              </div>
+              {dateError && <p style={{ color: '#ff4d4f', fontSize: '0.8em', marginTop: '5px' }}>{dateError}</p>}
+            </>
+          )}
+          {activeTab === 'payday' && (
+            <>
+              <h2 className="panel-title">发工资设置</h2>
+              <div className="payday-settings-section">
+                <div className="payday-frequency">
+                  <label>
+                    <input
+                      type="radio"
+                      name="paydayType"
+                      value="monthly"
+                      checked={paydaySettings.type === 'monthly'}
+                      onChange={e => setPaydaySettings({ ...paydaySettings, type: e.target.value as 'monthly' | 'weekly' | 'bi-weekly', dayOfWeek: undefined, biWeeklyReferenceDate: undefined })}
+                    />
+                    每月
+                  </label>
+                  <label>
+                    <input
+                      type="radio"
+                      name="paydayType"
+                      value="weekly"
+                      checked={paydaySettings.type === 'weekly'}
+                      onChange={e => setPaydaySettings({ ...paydaySettings, type: e.target.value as 'monthly' | 'weekly' | 'bi-weekly', dayOfMonth: undefined, biWeeklyReferenceDate: undefined })}
+                    />
+                    每周
+                  </label>
+                  <label>
+                    <input
+                      type="radio"
+                      name="paydayType"
+                      value="bi-weekly"
+                      checked={paydaySettings.type === 'bi-weekly'}
+                      onChange={e => setPaydaySettings({ ...paydaySettings, type: e.target.value as 'monthly' | 'weekly' | 'bi-weekly', dayOfMonth: undefined })}
+                    />
+                    每两周
+                  </label>
+                </div>
 
-        {paydaySettings.type === 'monthly' && (
-          <div className="payday-monthly-setting">
-            <label>每月：</label>
-            <input
-              type="number"
-              min="1"
-              max="31"
-              value={paydaySettings.dayOfMonth !== undefined ? String(paydaySettings.dayOfMonth) : ''}
-              onChange={e => setPaydaySettings({ ...paydaySettings, dayOfMonth: parseInt(e.target.value, 10) || undefined })}
-            />
-            日
-            <button onClick={savePaydaySettings} className="save-payday-settings-button">✓</button>
-          </div>
-        )}
+                {paydaySettings.type === 'monthly' && (
+                  <div className="payday-monthly-setting">
+                    <label>每月：</label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="31"
+                      value={paydaySettings.dayOfMonth !== undefined ? String(paydaySettings.dayOfMonth) : ''}
+                      onChange={e => setPaydaySettings({ ...paydaySettings, dayOfMonth: parseInt(e.target.value, 10) || undefined })}
+                    />
+                    日
+                    <button onClick={savePaydaySettings} className="save-payday-settings-button">✓</button>
+                  </div>
+                )}
 
-        {(paydaySettings.type === 'weekly' || paydaySettings.type === 'bi-weekly') && (
-          <div className="payday-weekly-setting">
-            <label>{paydaySettings.type === 'weekly' ? '每周：' : '每两周：'}</label>
-            <select
-              value={paydaySettings.dayOfWeek !== undefined ? String(paydaySettings.dayOfWeek) : ''}
-              onChange={e => setPaydaySettings({ ...paydaySettings, dayOfWeek: parseInt(e.target.value, 10) || undefined })}
-            >
-              <option value="">选择星期</option>
-              <option value="1">星期一</option>
-              <option value="2">星期二</option>
-              <option value="3">星期三</option>
-              <option value="4">星期四</option>
-              <option value="5">星期五</option>
-              <option value="6">星期六</option>
-              <option value="0">星期日</option>
-            </select>
-            {paydaySettings.type === 'weekly' && (
-              <button onClick={savePaydaySettings} className="save-payday-settings-button">✓</button>
-            )}
-          </div>
-        )}
+                {(paydaySettings.type === 'weekly' || paydaySettings.type === 'bi-weekly') && (
+                  <div className="payday-weekly-setting">
+                    <label>{paydaySettings.type === 'weekly' ? '每周：' : '每两周：'}</label>
+                    <select
+                      value={paydaySettings.dayOfWeek !== undefined ? String(paydaySettings.dayOfWeek) : ''}
+                      onChange={e => setPaydaySettings({ ...paydaySettings, dayOfWeek: parseInt(e.target.value, 10) || undefined })}
+                    >
+                      <option value="">选择星期</option>
+                      <option value="1">星期一</option>
+                      <option value="2">星期二</option>
+                      <option value="3">星期三</option>
+                      <option value="4">星期四</option>
+                      <option value="5">星期五</option>
+                      <option value="6">星期六</option>
+                      <option value="0">星期日</option>
+                    </select>
+                    {paydaySettings.type === 'weekly' && (
+                      <button onClick={savePaydaySettings} className="save-payday-settings-button">✓</button>
+                    )}
+                  </div>
+                )}
 
-        {paydaySettings.type === 'bi-weekly' && (
-          <div className="payday-bi-weekly-ref-date-setting">
-            <label>下次发工资：</label>
-            <input
-              type="text"
-              placeholder="YYYY-MM-DD"
-              value={paydaySettings.biWeeklyReferenceDate || ''}
-              onChange={e => setPaydaySettings({ ...paydaySettings, biWeeklyReferenceDate: e.target.value })}
-              className="add-event-input"
-            />
-            <button onClick={savePaydaySettings} className="save-payday-settings-button">✓</button>
-          </div>
-        )}
+                {paydaySettings.type === 'bi-weekly' && (
+                  <div className="payday-bi-weekly-ref-date-setting">
+                    <label>下次发工资：</label>
+                    <input
+                      type="text"
+                      placeholder="YYYY-MM-DD"
+                      value={paydaySettings.biWeeklyReferenceDate || ''}
+                      onChange={e => setPaydaySettings({ ...paydaySettings, biWeeklyReferenceDate: e.target.value })}
+                      className="add-event-input"
+                    />
+                    <button onClick={savePaydaySettings} className="save-payday-settings-button">✓</button>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+        </div>
       </div>
-
       <button className="back-button" onClick={onClose}>返回</button>
     </div>
   );
 };
 
 export default Settings;
+ 

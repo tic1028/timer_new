@@ -15,9 +15,12 @@ interface PaydaySettings {
   biWeeklyReferenceDate?: string;
 }
 
-const CalendarDisplay: React.FC = () => {
+interface CalendarDisplayProps {
+  onOpenSettings: () => void;
+}
+
+const CalendarDisplay: React.FC<CalendarDisplayProps> = ({ onOpenSettings }) => {
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [events] = useState<CalendarEvent[]>(() => {
     const savedEvents = localStorage.getItem('events');
     return savedEvents ? JSON.parse(savedEvents) : [
@@ -238,9 +241,16 @@ const CalendarDisplay: React.FC = () => {
       {paydayCountdown !== null && (
         <div className="payday-countdown-text">
           距离发工资还有
-          <span className="payday-countdown-days">{paydayCountdown}天</span>
+          <span className="payday-countdown-days">{paydayCountdown}天 💸</span>
         </div>
       )}
+      <div className="schedule-buttons" style={{ justifyContent: 'flex-start' }}>
+        <div className="calendar-header">
+          <button className="edit-button" onClick={onOpenSettings}>
+            编辑日历
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
