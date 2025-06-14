@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
+import { createPortal } from 'react-dom';
 // @ts-expect-error: No type definitions available for lunar-javascript
 import { Lunar } from 'lunar-javascript';
 
@@ -21,6 +22,8 @@ interface CalendarDisplayProps {
 
 const CalendarDisplay: React.FC<CalendarDisplayProps> = ({ onOpenSettings }) => {
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [events] = useState<CalendarEvent[]>(() => {
     const savedEvents = localStorage.getItem('events');
     return savedEvents ? JSON.parse(savedEvents) : [
@@ -48,6 +51,8 @@ const CalendarDisplay: React.FC<CalendarDisplayProps> = ({ onOpenSettings }) => 
       biWeeklyReferenceDate: undefined,
     };
   });
+  const calendarRef = useRef<HTMLDivElement>(null);
+  const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -67,6 +72,24 @@ const CalendarDisplay: React.FC<CalendarDisplayProps> = ({ onOpenSettings }) => 
         dayOfWeek: typeof parsed.dayOfWeek === 'number' && !isNaN(parsed.dayOfWeek) ? parsed.dayOfWeek : undefined,
       });
     }
+  }, []);
+
+  useEffect(() => {
+    // Create portal container
+    const container = document.createElement('div');
+    container.style.position = 'fixed';
+    container.style.top = '0';
+    container.style.left = '0';
+    container.style.width = '100%';
+    container.style.height = '100%';
+    container.style.pointerEvents = 'none';
+    container.style.zIndex = '99999';
+    document.body.appendChild(container);
+    setPortalContainer(container);
+
+    return () => {
+      document.body.removeChild(container);
+    };
   }, []);
 
   const calculatePaydayCountdown = () => {
@@ -215,18 +238,138 @@ const CalendarDisplay: React.FC<CalendarDisplayProps> = ({ onOpenSettings }) => 
 
   const upcomingEvents = getUpcomingEvents();
 
+  // Debug log for state changes
+  useEffect(() => {
+    console.log('Calendar state changed:', { showCalendar, selectedDate });
+  }, [showCalendar, selectedDate]);
+
+  const handleDateClick = () => {
+    console.log('Date display clicked');
+    setShowCalendar(!showCalendar);
+  };
+
+  const handleDateSelect = (date: Date) => {
+    console.log('Date selected:', date);
+    setSelectedDate(date);
+  };
+
+  const handleMonthChange = (increment: number) => {
+    console.log('Month change:', increment);
+    setSelectedDate(new Date(selectedDate.getFullYear(), selectedDate.getMonth() + increment, 1));
+  };
+
+  // Add click outside handler
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (calendarRef.current && !calendarRef.current.contains(event.target as Node)) {
+        setShowCalendar(false);
+      }
+    };
+
+    if (showCalendar) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showCalendar]);
+
+  const renderCalendar = () => {
+    if (!showCalendar || !portalContainer) return null;
+
+    const year = selectedDate.getFullYear();
+    const month = selectedDate.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startingDay = firstDay.getDay();
+
+    const days = [];
+    for (let i = 0; i < startingDay; i++) {
+      days.push(<div key={`empty-${i}`} className="calendar-day empty"></div>);
+    }
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(year, month, day);
+      const isToday = date.toDateString() === new Date().toDateString();
+      const isSelected = date.toDateString() === selectedDate.toDateString();
+
+      days.push(
+        <div
+          key={day}
+          className={`calendar-day ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''}`}
+          onClick={() => {
+            console.log('Day clicked:', day);
+            handleDateSelect(date);
+          }}
+        >
+          {day}
+        </div>
+      );
+    }
+
+    const calendarContent = (
+      <div 
+        className="calendar-popup" 
+        ref={calendarRef}
+        style={{
+          position: 'fixed',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          pointerEvents: 'auto',
+          zIndex: 100000
+        }}
+      >
+        <div className="calendar-header">
+          <button onClick={() => handleMonthChange(-1)}>
+            &lt;
+          </button>
+          <span>{year}年{month + 1}月</span>
+          <button onClick={() => handleMonthChange(1)}>
+            &gt;
+          </button>
+        </div>
+        <div className="calendar-weekdays">
+          <div>日</div>
+          <div>一</div>
+          <div>二</div>
+          <div>三</div>
+          <div>四</div>
+          <div>五</div>
+          <div>六</div>
+        </div>
+        <div className="calendar-days">
+          {days}
+        </div>
+      </div>
+    );
+
+    return createPortal(calendarContent, portalContainer);
+  };
+
   return (
     <div className="glass-panel date-time-panel">
-      <div className="date-display">
+      <div 
+        className="date-display" 
+        onClick={handleDateClick} 
+        style={{ cursor: 'pointer' }}
+      >
         {formatDate(currentDateTime)}
         <br />
         {lunarCalendarInfo}
       </div>
-      <div className="time-display">
-        {formatTime(currentDateTime)}
-        <div className="countdown-text">
-          距离高考还有<span className="countdown-days">{gaokaoCountdown}天</span>
-        </div>
+      {renderCalendar()}
+      <div className="countdown">
+        {paydayCountdown !== null && (
+          <div className="payday-countdown-text">
+            距离发工资还有
+            <span className="payday-countdown-days">{paydayCountdown}天 💸</span>
+          </div>
+        )}
+      </div>
+      <div className="anniversary">
         {upcomingEvents.length > 0 && (
           <div className="event-reminder">
             {upcomingEvents.map((item, idx) => (
@@ -238,18 +381,16 @@ const CalendarDisplay: React.FC<CalendarDisplayProps> = ({ onOpenSettings }) => 
           </div>
         )}
       </div>
-      {paydayCountdown !== null && (
-        <div className="payday-countdown-text">
-          距离发工资还有
-          <span className="payday-countdown-days">{paydayCountdown}天 💸</span>
+      <div className="time-display">
+        {formatTime(currentDateTime)}
+        <div className="countdown-text">
+          距离高考还有<span className="countdown-days">{gaokaoCountdown}天</span>
         </div>
-      )}
+      </div>
       <div className="schedule-buttons" style={{ justifyContent: 'flex-start' }}>
-        <div className="calendar-header">
-          <button className="edit-button" onClick={onOpenSettings}>
-            编辑日历
-          </button>
-        </div>
+        <button className="edit-button" onClick={onOpenSettings}>
+          编辑日历
+        </button>
       </div>
     </div>
   );
