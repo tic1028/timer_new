@@ -17,8 +17,11 @@ body {
   justify-content: center;
   align-items: center;
   width: 100%;
-  max-width: 900px; /* Adjust as needed */
+  max-width: 1400px;
+  min-height: 100vh;
   padding: 20px;
+  box-sizing: border-box;
+  margin: 0 auto;
 }
 
 .glass-panel {
@@ -41,6 +44,10 @@ body {
   grid-template-rows: auto 1fr;
   gap: 20px;
   padding: 30px;
+  min-height: 600px;
+  height: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
   background: linear-gradient(to bottom right, rgba(240, 248, 255, 0.6) 0%, rgba(255, 240, 245, 0.6) 100%);
   border-radius: 20px;
   backdrop-filter: blur(10px);
@@ -64,53 +71,47 @@ body {
   z-index: 1;
 }
 
+.glass-panel.date-time-panel {
+  margin: 10px;
+  padding: 25px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
 .date-time-panel {
-  grid-column: 1 / 2;
-  grid-row: 1 / 2;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  text-align: center;
+  gap: 15px;
 }
 
 .date-display {
-  font-size: 1.2em;
-  color: #666;
   text-align: center;
-  cursor: pointer;
+  font-size: 1.2em;
+  color: #333;
   margin-bottom: 10px;
 }
 
 .time-display {
-  font-size: 3em;
+  font-size: 2.5em;
   font-weight: bold;
   color: #333;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.3em;
   text-align: center;
+  margin: 10px 0;
 }
 
-.countdown-text {
-  font-size: 0.5em;
-  font-weight: normal;
-  margin: 0.2em 0;
-  color: #666;
+.countdown-text,
+.payday-countdown-text,
+.event-reminder {
   text-align: center;
+  margin: 5px 0;
+  color: #666;
 }
 
 .countdown-days {
   color: #ff6600;
   font-weight: bold;
-}
-
-.payday-countdown-text {
-  font-size: 1em;
-  font-weight: normal;
-  margin-top: 5px;
-  color: #666;
-  text-align: center;
 }
 
 .payday-countdown-days {
@@ -208,68 +209,54 @@ body {
 }
 
 .pomodoro-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 200px;
+  margin: 10px;
   padding: 20px;
   background: rgba(255, 255, 255, 0.1);
   border-radius: 15px;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
 }
 
 .timer-display {
   font-size: 4em;
   font-weight: bold;
   color: #333;
-  margin-bottom: 20px;
-  position: relative;
-  z-index: 2;
+  text-align: center;
+  margin: 0;
 }
 
 .timer-controls {
   display: flex;
-  flex-direction: row;
   justify-content: center;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 20px;
-  position: relative;
-  z-index: 2;
+  gap: 15px;
+  width: 100%;
 }
 
 .timer-button {
-  background: rgba(255, 255, 255, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  border-radius: 10px;
   padding: 10px 20px;
-  margin: 0 5px;
   font-size: 1em;
+  border: none;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.8);
   color: #333;
 }
 
-.timer-button:hover,
-.timer-button:focus,
-.timer-button:active {
-  background: rgba(255, 255, 255, 1);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  outline: none;
-  border-color: rgba(255, 255, 255, 0.4);
-}
-
 .timer-button.primary {
-  background: #007bff;
+  background: #4a90e2;
   color: white;
-  border-color: #007bff;
 }
 
-.timer-button.primary:hover {
-  background: #0056b3;
-  border-color: #0056b3;
+.timer-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .timer-button.pause-active {
@@ -285,10 +272,8 @@ body {
 
 .schedule-buttons {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  margin-top: auto;
+  justify-content: flex-end;
+  margin-top: 10px;
 }
 
 .glass-panel .timer-controls button.pause-active {
@@ -503,15 +488,40 @@ body {
 }
 
 @media (max-width: 768px) {
-  .main-panel {
-    grid-template-columns: 1fr;
+  .app-container {
+    padding: 15px;
   }
 
-  .date-time-panel,
-  .timer-panel,
-  .schedule-panel,
-  .tools-panel {
-    grid-column: 1 / 2;
+  .glass-panel.main-panel {
+    padding: 20px;
+    gap: 15px;
+  }
+
+  .pomodoro-container,
+  .glass-panel.date-time-panel {
+    margin: 5px;
+    padding: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-container {
+    padding: 10px;
+  }
+
+  .glass-panel.main-panel {
+    padding: 15px;
+    gap: 10px;
+  }
+
+  .pomodoro-container,
+  .glass-panel.date-time-panel {
+    margin: 5px;
+    padding: 10px;
+  }
+
+  .time-display {
+    font-size: 2em;
   }
 }
 
@@ -628,30 +638,16 @@ body {
 }
 
 .edit-button {
-  background: rgba(255, 255, 255, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  background: none;
+  border: none;
   cursor: pointer;
-  transition: all 0.3s ease;
+  padding: 5px;
   color: #666;
-  padding: 0;
+  transition: color 0.3s;
 }
 
 .edit-button:hover {
-  background: rgba(255, 255, 255, 1);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  transform: rotate(30deg);
   color: #333;
-}
-
-.edit-button svg {
-  width: 20px;
-  height: 20px;
 }
 
 .notes-container {
