@@ -1,0 +1,388 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #e0e0e0; /* Light gray background */
+}
+
+.app-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 900px; /* Adjust as needed */
+  padding: 20px;
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.7); /* Translucent white */
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 20px;
+  margin: 10px;
+}
+
+.main-panel {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 20px;
+  width: 100%;
+  background: linear-gradient(135deg, rgba(240, 240, 240, 0.7), rgba(255, 255, 255, 0.7)); /* Apple-like gradient */
+  border-radius: 20px; /* Ensure rounded corners for the main panel as well */
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+.date-time-panel {
+  grid-column: 1 / 2;
+  grid-row: 1 / 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.date-display {
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #333;
+  line-height: 1.4;
+}
+
+.time-display {
+  font-size: 3em;
+  font-weight: bold;
+  color: #333;
+  display: flex;
+  align-items: baseline;
+}
+
+.countdown-text {
+  font-size: 0.5em;
+  font-weight: normal;
+  margin-left: 10px;
+  color: #666;
+}
+
+.countdown-days {
+  color: #ff6600;
+  font-weight: bold;
+}
+
+.timer-panel {
+  grid-column: 2 / 3;
+  grid-row: 1 / 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  perspective: 1000px;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.timer-panel.flipped .panel-inner {
+  transform: rotateY(180deg);
+}
+
+.panel-inner {
+  position: relative;
+  width: 100%;
+  text-align: center;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.panel-front, .panel-back {
+  width: 100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.panel-front {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.panel-back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  transform: rotateY(180deg);
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.sessions-completed {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.sessions-completed p {
+  font-size: 1.2em;
+  color: #555;
+  margin-bottom: 5px;
+}
+
+.sessions-completed h2 {
+  font-size: 3em;
+  color: #333;
+  margin: 0;
+}
+
+.timer-display {
+  font-size: 4em;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 2;
+}
+
+.timer-controls {
+  position: relative;
+  z-index: 2;
+}
+
+.timer-controls button {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 10px;
+  padding: 10px 20px;
+  margin: 0 5px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #333;
+}
+
+.timer-controls button:hover,
+.timer-controls button:focus,
+.timer-controls button:active {
+  background: rgba(255, 255, 255, 1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.timer-controls button.primary {
+  background: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.timer-controls button.primary:hover {
+  background: #0056b3;
+  border-color: #0056b3;
+}
+
+.glass-panel .timer-controls button.pause-active {
+  background: #F60;
+  color: white;
+  border-color: #F60;
+}
+
+.glass-panel .timer-controls button.pause-active:hover,
+.glass-panel .timer-controls button.pause-active:focus,
+.glass-panel .timer-controls button.pause-active:active {
+  background: #d45000;
+  border-color: #d45000;
+  outline: none;
+  box-shadow: none;
+}
+
+.schedule-panel {
+  grid-column: 1 / 2;
+  grid-row: 2 / 3;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-title {
+  font-size: 1.3em;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.schedule-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.schedule-list li {
+  margin-bottom: 10px;
+  color: #555;
+  display: flex;
+  align-items: center;
+}
+
+.bullet-point {
+  width: 8px;
+  height: 8px;
+  background-color: #ff6600;
+  border-radius: 50%;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.sync-button {
+  background: none;
+  border: none;
+  color: #007bff;
+  cursor: pointer;
+  font-size: 1em;
+  margin-top: 15px;
+  text-align: left;
+  padding: 0;
+}
+
+.sync-button:hover {
+  text-decoration: underline;
+}
+
+.tools-panel {
+  grid-column: 2 / 3;
+  grid-row: 2 / 3;
+}
+
+.tool-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+}
+
+.tool-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+}
+
+.tool-icon {
+  width: 50px;
+  height: 50px;
+  background-size: 70%;
+  background-repeat: no-repeat;
+  background-position: center;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 15px;
+  margin-bottom: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.tool-item:nth-child(1) .tool-icon {
+  background-image: url('./assets/wallpaper.png');
+}
+
+.tool-item:nth-child(2) .tool-icon {
+  background-image: url('./assets/stopwatch.png');
+}
+
+.tool-item:nth-child(3) .tool-icon {
+  background-image: url('./assets/notes.png');
+}
+
+.tool-item:nth-child(4) .tool-icon {
+  background-image: url('./assets/mirror.png');
+}
+
+.tool-item:nth-child(5) .tool-icon {
+  background-image: url('./assets/vocabulary.png');
+}
+
+.tool-item:nth-child(6) .tool-icon {
+  background-image: url('./assets/translation.png');
+}
+
+.tool-label {
+  font-size: 0.8em;
+  color: #333;
+}
+
+@media (max-width: 768px) {
+  .main-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .date-time-panel,
+  .timer-panel,
+  .schedule-panel,
+  .tools-panel {
+    grid-column: 1 / 2;
+  }
+}
+
+.customization-inputs {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+}
+
+.customization-inputs label {
+  color: #333;
+  font-size: 0.9em;
+  font-weight: bold;
+}
+
+.customization-inputs input[type="number"] {
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 1em;
+  color: #333;
+  width: 80px;
+  text-align: center;
+  -moz-appearance: textfield;
+}
+
+.customization-inputs input[type="number"]::-webkit-outer-spin-button,
+.customization-inputs input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.customization-inputs button {
+  margin-top: 10px;
+  width: fit-content;
+}
