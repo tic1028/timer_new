@@ -4,6 +4,7 @@ import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 // @ts-expect-error: No type definitions available for lunar-javascript
 import { Lunar } from 'lunar-javascript';
+import { Value } from 'react-calendar/dist/cjs/shared/types';
 
 interface Holiday {
   date: string;
@@ -379,7 +380,7 @@ const CalendarDisplay: React.FC<CalendarDisplayProps> = ({ onOpenSettings }) => 
     setShowCalendar(!showCalendar);
   };
 
-  const handleDateSelect = (value: Date | Date[] | null) => {
+  const handleDateSelect = (value: Value) => {
     if (value instanceof Date) {
       setSelectedDate(value);
       // Get lunar info

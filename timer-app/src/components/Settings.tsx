@@ -50,14 +50,6 @@ const Settings: React.FC<SettingsProps> = ({ onClose, activeTab = 'anniversary' 
     };
   });
   const [currentTab, setCurrentTab] = useState<'anniversary' | 'payday' | 'water'>(activeTab);
-  const [waterReminderInterval, setWaterReminderInterval] = useState<number>(() => {
-    const saved = localStorage.getItem('waterReminderInterval');
-    return saved ? parseInt(saved, 10) : 60;
-  });
-  const [waterReminderActive, setWaterReminderActive] = useState<boolean>(() => {
-    const saved = localStorage.getItem('waterReminderActive');
-    return saved ? JSON.parse(saved) : true;
-  });
 
   useEffect(() => {
     localStorage.setItem('events', JSON.stringify(events));
