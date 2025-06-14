@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
-// @ts-expect-error: No type definitions available for lunar-javascript
+// @ts-ignore
 import { Lunar } from 'lunar-javascript';
 import type { Value } from 'react-calendar/dist/cjs/shared/types';
 

@@ -250,8 +250,28 @@ body {
 }
 
 .timer-button.primary {
-  background: #4a90e2;
+  background: #027BFF;
   color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(2, 123, 255, 0.2);
+}
+
+.timer-button.primary:hover {
+  background: #0266CC;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(2, 123, 255, 0.3);
+}
+
+.timer-button.primary:active {
+  background: #0255AA;
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(2, 123, 255, 0.2);
 }
 
 .timer-button:hover {
@@ -1604,7 +1624,7 @@ body {
 .react-calendar__tile--now:enabled:hover,
 .react-calendar__tile--now:enabled:focus,
 .react-calendar__tile--now:enabled:active {
-  background-color: rgba(0, 0, 0, 0.05) !important;
+  background-color: rgba(2, 123, 255, 0.1) !important;
   color: #333 !important;
   font-weight: 500 !important;
 }
@@ -1621,25 +1641,23 @@ body {
 }
 
 .react-calendar__tile--active {
-  background: #1890ff !important;
+  background: #027BFF !important;
   color: white !important;
-  border-radius: 4px;
 }
 
 .react-calendar__tile--active:enabled:hover,
 .react-calendar__tile--active:enabled:focus {
-  background: #40a9ff !important;
-  color: white !important;
+  background: #0266CC !important;
 }
 
 .react-calendar__tile--now {
-  background: rgba(24, 144, 255, 0.1) !important;
+  background: rgba(2, 123, 255, 0.1) !important;
   border-radius: 4px;
 }
 
 .react-calendar__tile--now:enabled:hover,
 .react-calendar__tile--now:enabled:focus {
-  background: rgba(24, 144, 255, 0.2) !important;
+  background: rgba(2, 123, 255, 0.2) !important;
 }
 
 .react-calendar--selectRange .react-calendar__tile--hover {
@@ -1697,9 +1715,15 @@ body {
   border: none;
 }
 .holiday-circle.cn {
+  height:6px;
+  width: 6px;
+  border-radius: 50%;
   background: #ff4d4f;
 }
 .holiday-circle.us {
+  height:6px;
+  width: 6px;
+  border-radius: 50%;
   background: #007bff;
 }
 /* 鼠标悬停时显示原生title（浏览器自带） */
@@ -1731,4 +1755,57 @@ body {
   border-radius: 50%;
   display: inline-block;
   margin: 0 2px;
+}
+
+/* 统一所有标记圆圈的大小 */
+.react-calendar__tile abbr {
+  position: relative;
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  text-align: center;
+  border-radius: 50%;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+/* 天气标记 */
+.react-calendar__tile abbr[title*="天气"] {
+  background: rgba(2, 123, 255, 0.1);
+  color: #027BFF;
+  width: 24px !important;
+  height: 24px !important;
+  line-height: 24px !important;
+  display: inline-block !important;
+}
+
+/* 美国节日标记 */
+.react-calendar__tile abbr[title*="美国节日"] {
+  background: rgba(2, 123, 255, 0.1);
+  color: #027BFF;
+  width: 24px !important;
+  height: 24px !important;
+  line-height: 24px !important;
+  display: inline-block !important;
+}
+
+/* 中国节日标记 */
+.react-calendar__tile abbr[title*="中国节日"] {
+  background: rgba(2, 123, 255, 0.1);
+  color: #027BFF;
+  width: 24px !important;
+  height: 24px !important;
+  line-height: 24px !important;
+  display: inline-block !important;
+}
+
+/* 农历日期标记 */
+.react-calendar__tile abbr[title*="农历"] {
+  background: rgba(2, 123, 255, 0.1);
+  color: #027BFF;
+  width: 24px !important;
+  height: 24px !important;
+  line-height: 24px !important;
+  display: inline-block !important;
 }
