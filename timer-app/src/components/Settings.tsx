@@ -67,6 +67,20 @@ const Settings: React.FC<SettingsProps> = ({ onClose, activeTab = 'anniversary' 
     setCurrentTab(activeTab);
   }, [activeTab]);
 
+  // Add ESC key handler
+  useEffect(() => {
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    window.addEventListener('keydown', handleEscKey);
+    return () => {
+      window.removeEventListener('keydown', handleEscKey);
+    };
+  }, [onClose]);
+
   const validateDate = (dateString: string) => {
     const regex = /^\d{4}-\d{2}-\d{2}$/;
     if (!regex.test(dateString)) {

@@ -1,6 +1,8 @@
 {
   "dependencies": {
+    "@types/react-calendar": "^4.1.0",
     "lunar-javascript": "^1.7.3",
+    "react-calendar": "^6.0.0",
     "react-datepicker": "^8.4.0"
   }
 }
