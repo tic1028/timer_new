@@ -225,11 +225,13 @@ const CalendarDisplay: React.FC<CalendarDisplayProps> = ({ onOpenSettings }) => 
   useEffect(() => {
     const timer = setInterval(() => {
       const now = new Date();
-      // console.log('Time update:', now.toLocaleTimeString());
-      setCurrentDateTime(now);
+      // 只在秒数变化时更新状态
+      if (now.getSeconds() !== currentDateTime.getSeconds()) {
+        setCurrentDateTime(now);
+      }
     }, 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, [currentDateTime]);
 
   useEffect(() => {
     const container = document.createElement('div');
