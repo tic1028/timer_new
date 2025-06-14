@@ -185,4 +185,5 @@ const WaterReminderPanel: React.FC<WaterReminderPanelProps> = ({ onClose }) => {
   );
 };
 
+console.log('WaterReminderPanel');
 export default WaterReminderPanel; 
