@@ -1,100 +1,93 @@
-import React, { useState, useEffect } from 'react';
-import './WaterReminder.css';
+import React, { useState, useEffect, useRef } from 'react';
+import notificationSound from '../assets/notification.mp3';
 
 interface WaterReminderProps {
-  onClose: () => void;
+  onOpenSettings: () => void;
 }
 
-const WaterReminder: React.FC<WaterReminderProps> = ({ onClose }) => {
-  const [interval, setInterval] = useState(60); // Default 60 minutes
-  const [isEnabled, setIsEnabled] = useState(true);
+const WaterReminder: React.FC<WaterReminderProps> = ({ onOpenSettings }) => {
+  const [reminderInterval, setReminderInterval] = useState<number>(() => {
+    const saved = localStorage.getItem('waterReminderInterval');
+    return saved ? parseInt(saved, 10) : 60; // Default to 60 minutes
+  });
+  const [isActive, setIsActive] = useState<boolean>(() => {
+    const saved = localStorage.getItem('waterReminderActive');
+    return saved ? JSON.parse(saved) : true; // Default to active
+  });
   const [nextReminder, setNextReminder] = useState<Date | null>(null);
+  const audio = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    // Request notification permission on component mount
-    if ('Notification' in window) {
-      Notification.requestPermission();
-    }
+    audio.current = new Audio(notificationSound);
+  }, []);
 
-    // Set up the reminder interval
-    let timer: number | undefined;
-    if (isEnabled) {
+  useEffect(() => {
+    localStorage.setItem('waterReminderInterval', reminderInterval.toString());
+  }, [reminderInterval]);
+
+  useEffect(() => {
+    localStorage.setItem('waterReminderActive', JSON.stringify(isActive));
+  }, [isActive]);
+
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout;
+
+    if (isActive) {
       const scheduleNextReminder = () => {
         const now = new Date();
-        const next = new Date(now.getTime() + interval * 60000);
+        const next = new Date(now.getTime() + reminderInterval * 60000);
         setNextReminder(next);
       };
 
       scheduleNextReminder();
-      timer = window.setInterval(() => {
-        showNotification();
+      intervalId = setInterval(() => {
+        if (audio.current) {
+          audio.current.play();
+        }
+        if ('Notification' in window && Notification.permission === 'granted') {
+          new Notification('喝水提醒', {
+            body: '该喝水啦！保持水分摄入很重要哦 💧',
+            icon: '/water-icon.png'
+          });
+        }
         scheduleNextReminder();
-      }, interval * 60000);
+      }, reminderInterval * 60000);
     }
 
     return () => {
-      if (timer) {
-        window.clearInterval(timer);
+      if (intervalId) {
+        clearInterval(intervalId);
       }
     };
-  }, [interval, isEnabled]);
+  }, [isActive, reminderInterval]);
 
-  const showNotification = () => {
-    if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification('喝水提醒 💧', {
-        body: '该喝水啦！保持水分摄入对身体很重要哦～',
-        icon: '/water-icon.png',
-      });
-
-      // Play sound
-      const audio = new Audio('/water_notification.mp3');
-      audio.play().catch(error => console.log('Error playing sound:', error));
+  useEffect(() => {
+    if ('Notification' in window && Notification.permission !== 'granted') {
+      Notification.requestPermission();
     }
-  };
-
-  const handleIntervalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value);
-    if (value >= 0) { // Allow any non-negative value
-      setInterval(value);
-    }
-  };
+  }, []);
 
   return (
-    <div className="water-reminder-panel glass-panel">
-      <div className="water-reminder-header">
-        <h2>喝水提醒设置</h2>
-        <button className="close-button" onClick={onClose}>×</button>
-      </div>
-      
+    <div className="water-reminder">
       <div className="water-reminder-content">
-        <div className="setting-item">
-          <label>
-            <input
-              type="checkbox"
-              checked={isEnabled}
-              onChange={(e) => setIsEnabled(e.target.checked)}
-            />
-            启用提醒
-          </label>
+        <div className="water-reminder-status">
+          <span className="water-reminder-label">喝水提醒</span>
+          <span className="water-reminder-interval">
+            {reminderInterval} 分钟
+          </span>
         </div>
-
-        <div className="setting-item">
-          <label>提醒间隔（分钟）</label>
-          <input
-            type="number"
-            min="0"
-            value={interval}
-            onChange={handleIntervalChange}
-            disabled={!isEnabled}
-          />
-        </div>
-
-        {nextReminder && (
-          <div className="next-reminder">
-            下次提醒时间：{nextReminder.toLocaleTimeString()}
-          </div>
-        )}
+        <button 
+          className="water-reminder-settings-button"
+          onClick={onOpenSettings}
+        >
+          设置
+        </button>
       </div>
+      {nextReminder && (
+        <div className="next-reminder">
+          下次提醒: {nextReminder.toLocaleTimeString()}
+        </div>
+      )}
     </div>
   );
 };

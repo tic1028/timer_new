@@ -14,7 +14,12 @@ interface PaydaySettings {
   biWeeklyReferenceDate?: string; // New: Reference date for bi-weekly pay
 }
 
-const Settings: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+interface SettingsProps {
+  onClose: () => void;
+  activeTab?: 'anniversary' | 'payday' | 'water';
+}
+
+const Settings: React.FC<SettingsProps> = ({ onClose, activeTab = 'anniversary' }) => {
   const [events, setEvents] = useState<EventItem[]>(() => {
     const savedEvents = localStorage.getItem('events');
     return savedEvents ? JSON.parse(savedEvents) : [
@@ -44,24 +49,23 @@ const Settings: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       biWeeklyReferenceDate: undefined,
     };
   });
-  const [activeTab, setActiveTab] = useState<'anniversary' | 'payday'>('anniversary');
-
-  useEffect(() => {
-    const handleEscapeKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        onClose();
-      }
-    };
-
-    window.addEventListener('keydown', handleEscapeKey);
-    return () => {
-      window.removeEventListener('keydown', handleEscapeKey);
-    };
-  }, [onClose]);
+  const [currentTab, setCurrentTab] = useState<'anniversary' | 'payday' | 'water'>(activeTab);
+  const [waterReminderInterval, setWaterReminderInterval] = useState<number>(() => {
+    const saved = localStorage.getItem('waterReminderInterval');
+    return saved ? parseInt(saved, 10) : 60;
+  });
+  const [waterReminderActive, setWaterReminderActive] = useState<boolean>(() => {
+    const saved = localStorage.getItem('waterReminderActive');
+    return saved ? JSON.parse(saved) : true;
+  });
 
   useEffect(() => {
     localStorage.setItem('events', JSON.stringify(events));
   }, [events]);
+
+  useEffect(() => {
+    setCurrentTab(activeTab);
+  }, [activeTab]);
 
   const validateDate = (dateString: string) => {
     const regex = /^\d{4}-\d{2}-\d{2}$/;
@@ -160,21 +164,21 @@ const Settings: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     <div className="settings-panel glass-panel">
       <div className="settings-layout">
         <div className="settings-tabs">
-          <button 
-            className={`settings-tab ${activeTab === 'anniversary' ? 'active' : ''}`}
-            onClick={() => setActiveTab('anniversary')}
+          <button
+            className={`settings-tab ${currentTab === 'anniversary' ? 'active' : ''}`}
+            onClick={() => setCurrentTab('anniversary')}
           >
             纪念日
           </button>
-          <button 
-            className={`settings-tab ${activeTab === 'payday' ? 'active' : ''}`}
-            onClick={() => setActiveTab('payday')}
+          <button
+            className={`settings-tab ${currentTab === 'payday' ? 'active' : ''}`}
+            onClick={() => setCurrentTab('payday')}
           >
             工资设置
           </button>
         </div>
         <div className="settings-content">
-          {activeTab === 'anniversary' && (
+          {currentTab === 'anniversary' && (
             <>
               <h2 className="panel-title">纪念日设置</h2>
               <div className="event-list">
@@ -226,7 +230,7 @@ const Settings: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               {dateError && <p style={{ color: '#ff4d4f', fontSize: '0.8em', marginTop: '5px' }}>{dateError}</p>}
             </>
           )}
-          {activeTab === 'payday' && (
+          {currentTab === 'payday' && (
             <>
               <h2 className="panel-title">发工资设置</h2>
               <div className="payday-settings-section">
