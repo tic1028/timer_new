@@ -4,6 +4,7 @@ import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 // @ts-ignore
 import { Lunar } from 'lunar-javascript';
+// @ts-ignore
 import type { Value } from 'react-calendar/dist/cjs/shared/types';
 
 interface Holiday {
@@ -347,7 +348,8 @@ const CalendarDisplay: React.FC<CalendarDisplayProps> = ({ onOpenSettings }) => 
     today.setHours(0, 0, 0, 0);
     const result = [];
 
-    for (const event of events) {
+    // 创建一个数组来存储事件和它们的天数差
+    const eventsWithDays = events.map(event => {
       const eventDate = new Date(event.date);
       const targetDate = new Date(eventDate);
 
@@ -362,6 +364,17 @@ const CalendarDisplay: React.FC<CalendarDisplayProps> = ({ onOpenSettings }) => 
       const diffTime = targetDate.getTime() - today.getTime();
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
+      return {
+        event,
+        diffDays
+      };
+    });
+
+    // 按照天数差排序
+    eventsWithDays.sort((a, b) => a.diffDays - b.diffDays);
+
+    // 只显示未来7天内的事件
+    for (const { event, diffDays } of eventsWithDays) {
       if (diffDays >= 0 && diffDays <= 7) {
         result.push(
           <span key={event.label + event.date}>
@@ -585,16 +598,16 @@ const CalendarDisplay: React.FC<CalendarDisplayProps> = ({ onOpenSettings }) => 
   return (
     <div className="glass-panel date-time-panel">
       <div className="date-time-panel">
-      <div 
-        className="date-display" 
-        onClick={handleDateClick} 
-        style={{ cursor: 'pointer' }}
-      >
+        <div 
+          className="date-display" 
+          onClick={handleDateClick} 
+          style={{ cursor: 'pointer' }}
+        >
           <div style={{ fontWeight: 'bold' }}>
-        {formatDate(currentDateTime)}
+            {formatDate(currentDateTime)}
           </div>
           <div className="lunar-date" style={{ fontWeight: 'bold' }}>
-        {lunarCalendarInfo}
+            {lunarCalendarInfo}
           </div>
         </div>
         {renderCalendar()}

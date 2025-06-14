@@ -8,6 +8,7 @@ import CalendarDisplay from './components/CalendarDisplay';
 import Settings from './components/Settings';
 import WaterReminderPanel from './components/WaterReminderPanel';
 import WaterReminderService from './components/WaterReminderService';
+import WoodenFish from './components/WoodenFish';
 
 interface MealNotesRef {
   openAndPreFillMeals: () => void;
@@ -49,6 +50,7 @@ function App() {
               </div>
               <MealNotes ref={mealNotesRef} onEatWhatClick={handleEatWhatClick} />
               <Notes />
+              <WoodenFish />
             </div>
           </div>
         </div>
