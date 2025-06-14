@@ -1,5 +1,6 @@
 import './App.css'
 import Pomodoro from './components/Pomodoro';
+import Schedule from './components/Schedule';
 
 function App() {
   return (
@@ -20,15 +21,7 @@ function App() {
           </div>
         </div>
         <Pomodoro />
-        <div className="glass-panel schedule-panel">
-          <div className="panel-title">学习程</div>
-          <ul className="schedule-list">
-            <li><span className="bullet-point"></span>08:00-11:30 数学模拟考</li>
-            <li><span className="bullet-point"></span>15:00-15:30 英语听力训练</li>
-            <li><span className="bullet-point"></span>19:00-21:00 理综真题练习</li>
-          </ul>
-          <button className="sync-button">同步系统日历</button>
-        </div>
+        <Schedule />
         <div className="glass-panel tools-panel">
           <div className="tool-grid">
             <div className="tool-item">

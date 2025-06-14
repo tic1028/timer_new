@@ -224,11 +224,20 @@ body {
   box-shadow: none;
 }
 
+.glass-panel .timer-controls button.pause-active:not(:hover):not(:focus):not(:active) {
+  background: #F60;
+  border-color: #F60;
+}
+
 .schedule-panel {
   grid-column: 1 / 2;
   grid-row: 2 / 3;
   display: flex;
   flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  height: fit-content;
+  flex-shrink: 0;
 }
 
 .panel-title {
@@ -242,22 +251,73 @@ body {
   list-style: none;
   padding: 0;
   margin: 0;
+  width: 100%;
 }
 
-.schedule-list li {
-  margin-bottom: 10px;
+.schedule-item {
+  margin-bottom: 8px;
   color: #555;
   display: flex;
   align-items: center;
+  position: relative;
+  padding-left: 20px;
+  font-size: 1.1em;
 }
 
-.bullet-point {
-  width: 8px;
-  height: 8px;
-  background-color: #ff6600;
-  border-radius: 50%;
-  margin-right: 10px;
-  flex-shrink: 0;
+.schedule-item::before {
+  content: "•";
+  color: #ff6600;
+  font-size: 1.5em;
+  position: absolute;
+  left: 0;
+  top: -2px;
+}
+
+.schedule-text {
+  flex-grow: 1;
+  cursor: text;
+  padding: 4px 0;
+  line-height: 1.4;
+}
+
+.schedule-input {
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 1em;
+  color: #333;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.add-item-button {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 10px;
+  padding: 8px 16px;
+  font-size: 0.9em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #333;
+  margin-top: 15px;
+}
+
+.add-item-button:hover {
+  background: rgba(255, 255, 255, 1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.delete-button {
+  background: #ff4d4d;
+  color: white;
+  border-color: #ff4d4d;
+  margin-left: 10px;
+}
+
+.delete-button:hover {
+  background: #cc0000;
+  border-color: #cc0000;
 }
 
 .sync-button {
@@ -383,6 +443,108 @@ body {
 }
 
 .customization-inputs button {
-  margin-top: 10px;
-  width: fit-content;
+  background: #007bff;
+  color: white;
+  border: 1px solid #007bff;
+  border-radius: 10px;
+  padding: 8px 16px;
+  font-size: 0.9em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.customization-inputs button:hover {
+  background: #0056b3;
+  border-color: #0056b3;
+}
+
+.schedule-edit-mode {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  box-sizing: border-box;
+}
+
+.schedule-textarea {
+  width: 100%;
+  min-height: 200px;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 1em;
+  color: #333;
+  resize: vertical;
+  font-family: inherit;
+  line-height: 1.5;
+  box-sizing: border-box;
+  margin: 0;
+}
+
+.schedule-textarea:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.schedule-edit-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.save-button {
+  background: #007bff;
+  color: white;
+  border: 1px solid #007bff;
+  border-radius: 10px;
+  padding: 8px 16px;
+  font-size: 0.9em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.save-button:hover {
+  background: #0056b3;
+  border-color: #0056b3;
+}
+
+.cancel-button {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 10px;
+  padding: 8px 16px;
+  font-size: 0.9em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #333;
+}
+
+.cancel-button:hover {
+  background: rgba(255, 255, 255, 1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.schedule-buttons {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 15px;
+}
+
+.edit-button {
+  background: #007bff;
+  color: white;
+  border: 1px solid #007bff;
+  border-radius: 10px;
+  padding: 8px 16px;
+  font-size: 0.9em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.edit-button:hover {
+  background: #0056b3;
+  border-color: #0056b3;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
