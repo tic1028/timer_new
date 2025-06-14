@@ -602,7 +602,7 @@ const CalendarDisplay: React.FC<CalendarDisplayProps> = ({ onOpenSettings }) => 
         <div className="time-display">
           {formatTime(currentDateTime)}
           <div className="countdown-text">
-            距离高考还有<span className="countdown-days">{gaokaoCountdown}天</span>
+            距离期末还有<span className="countdown-days">{gaokaoCountdown}天</span>
           </div>
         </div>
       </div>
