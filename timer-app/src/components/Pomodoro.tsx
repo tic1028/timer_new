@@ -177,7 +177,7 @@ const Pomodoro: React.FC<PomodoroProps> = () => {
         <div className="panel-front">
           <div className="timer-display">{formatTime(minutes)}:{formatTime(seconds)}</div>
           <div className="timer-controls">
-            <button className="timer-button" onClick={(e: React.MouseEvent<HTMLButtonElement>) => { e.stopPropagation(); handleCustomize(e); }}>自定义时间</button>
+            <button className="timer-button" onClick={(e: React.MouseEvent<HTMLButtonElement>) => { e.stopPropagation(); handleCustomize(e); }}>自定义</button>
             <button className={`timer-button ${isActive ? 'pause-active' : 'primary'}`} onClick={(e: React.MouseEvent<HTMLButtonElement>) => { e.stopPropagation(); isActive ? handlePause(e) : handleStart(e); }}>
               {isActive ? '暂停' : '开始'}
             </button>

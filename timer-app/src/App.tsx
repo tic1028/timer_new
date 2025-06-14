@@ -1,56 +1,48 @@
 import './App.css'
+import React, { useRef } from 'react';
 import Pomodoro from './components/Pomodoro';
 import Schedule from './components/Schedule';
+import MealNotes from './components/MealNotes';
+import Notes from './components/Notes';
+import CalendarDisplay from './components/CalendarDisplay';
+import Settings from './components/Settings';
+
+interface MealNotesRef {
+  openAndPreFillMeals: () => void;
+}
 
 function App() {
+  const mealNotesRef = useRef<MealNotesRef>(null);
+  const [showSettings, setShowSettings] = React.useState(false);
+
+  const handleEatWhatClick = () => {
+    mealNotesRef.current?.openAndPreFillMeals();
+  };
+
   return (
     <div className="app-container">
-      <div className="glass-panel main-panel">
-        <div className="glass-panel date-time-panel">
-          <div className="date-display">
-            2025年5月30日 星期五
-            <br />
-            农历五月廿五 · 端午节
+      {showSettings ? (
+        <Settings onClose={() => setShowSettings(false)} />
+      ) : (
+        <div className="glass-panel main-panel">
+          <CalendarDisplay />
+          <Pomodoro />
+          <Schedule />
+          <div className="glass-panel tools-panel">
+            <div className="tool-grid">
+              <div className="tool-item wallpaper-tool-item">
+                <div className="tool-icon"></div>
+                <div className="tool-label">更换壁纸</div>
+              </div>
+              <MealNotes ref={mealNotesRef} onEatWhatClick={handleEatWhatClick} />
+              <Notes />
+            </div>
           </div>
-          <div className="time-display">
-            20:58
-            <span className="countdown-text">
-              距离高考还有
-              <span className="countdown-days">8天</span>
-            </span>
-          </div>
+          <button className="open-settings" onClick={() => setShowSettings(true)}>
+            纪念日/生日设置
+          </button>
         </div>
-        <Pomodoro />
-        <Schedule />
-        <div className="glass-panel tools-panel">
-          <div className="tool-grid">
-            <div className="tool-item">
-              <div className="tool-icon"></div>
-              <div className="tool-label">更换壁纸</div>
-            </div>
-            <div className="tool-item">
-              <div className="tool-icon"></div>
-              <div className="tool-label">正计时</div>
-            </div>
-            <div className="tool-item">
-              <div className="tool-icon"></div>
-              <div className="tool-label">笔记</div>
-            </div>
-            <div className="tool-item">
-              <div className="tool-icon"></div>
-              <div className="tool-label">伴摸镜</div>
-            </div>
-            <div className="tool-item">
-              <div className="tool-icon"></div>
-              <div className="tool-label">单词本</div>
-            </div>
-            <div className="tool-item">
-              <div className="tool-icon"></div>
-              <div className="tool-label">译溯译</div>
-            </div>
-          </div>
-        </div>
-      </div>
+      )}
     </div>
   )
 }
