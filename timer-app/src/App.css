@@ -207,6 +207,19 @@ body {
   margin: 0;
 }
 
+.pomodoro-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 200px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
 .timer-display {
   font-size: 4em;
   font-weight: bold;
@@ -217,14 +230,17 @@ body {
 }
 
 .timer-controls {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
   position: relative;
   z-index: 2;
-  display: flex;
-  justify-content: center;
-  gap: 10px;
 }
 
-.timer-controls button {
+.timer-button {
   background: rgba(255, 255, 255, 0.8);
   border: 1px solid rgba(255, 255, 255, 0.4);
   border-radius: 10px;
@@ -236,24 +252,43 @@ body {
   color: #333;
 }
 
-.timer-controls button:hover,
-.timer-controls button:focus,
-.timer-controls button:active {
+.timer-button:hover,
+.timer-button:focus,
+.timer-button:active {
   background: rgba(255, 255, 255, 1);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   outline: none;
   border-color: rgba(255, 255, 255, 0.4);
 }
 
-.timer-controls button.primary {
+.timer-button.primary {
   background: #007bff;
   color: white;
   border-color: #007bff;
 }
 
-.timer-controls button.primary:hover {
+.timer-button.primary:hover {
   background: #0056b3;
   border-color: #0056b3;
+}
+
+.timer-button.pause-active {
+  background: #dc3545;
+  color: white;
+  border-color: #dc3545;
+}
+
+.timer-button.pause-active:hover {
+  background: #c82333;
+  border-color: #c82333;
+}
+
+.schedule-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin-top: auto;
 }
 
 .glass-panel .timer-controls button.pause-active {
@@ -590,13 +625,6 @@ body {
 .cancel-button:hover {
   background: rgba(255, 255, 255, 1);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.schedule-buttons {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 10px;
 }
 
 .edit-button {

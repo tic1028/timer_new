@@ -225,7 +225,7 @@ const CalendarDisplay: React.FC<CalendarDisplayProps> = ({ onOpenSettings }) => 
   useEffect(() => {
     const timer = setInterval(() => {
       const now = new Date();
-      console.log('Time update:', now.toLocaleTimeString());
+      // console.log('Time update:', now.toLocaleTimeString());
       setCurrentDateTime(now);
     }, 1000);
     return () => clearInterval(timer);
@@ -600,20 +600,21 @@ const CalendarDisplay: React.FC<CalendarDisplayProps> = ({ onOpenSettings }) => 
         {lunarCalendarInfo}
       </div>
       {renderCalendar()}
-      <div className="countdown">
-        {paydayCountdown !== null && (
-          <div className="payday-countdown-text">
-            距离发工资还有
-            <span className="payday-countdown-days">{paydayCountdown}天 💸</span>
-          </div>
-        )}
-      </div>
+
 
       <div className="time-display">
         {formatTime(currentDateTime)}
         <div className="countdown-text">
           距离高考还有<span className="countdown-days">{gaokaoCountdown}天</span>
         </div>
+      </div>
+            <div className="countdown">
+        {paydayCountdown !== null && (
+          <div className="payday-countdown-text">
+            距离发工资还有
+            <span className="payday-countdown-days">{paydayCountdown}天 💸</span>
+          </div>
+        )}
       </div>
       <div className="anniversary">
         {upcomingEvents.length > 0 && (
