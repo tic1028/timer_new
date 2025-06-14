@@ -4,7 +4,7 @@ import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 // @ts-expect-error: No type definitions available for lunar-javascript
 import { Lunar } from 'lunar-javascript';
-import { Value } from 'react-calendar/dist/cjs/shared/types';
+import type { Value } from 'react-calendar/dist/cjs/shared/types';
 
 interface Holiday {
   date: string;
@@ -486,16 +486,8 @@ const CalendarDisplay: React.FC<CalendarDisplayProps> = ({ onOpenSettings }) => 
         <Calendar
           onChange={handleDateSelect}
           value={selectedDate}
-          locale="zh-CN"
-          className="react-calendar"
-          formatDay={(locale, date) => date.getDate().toString()}
-          tileClassName={tileClassName}
+          className="calendar"
           tileContent={tileContent}
-          onClickDecade={undefined}
-          onClickMonth={undefined}
-          onClickYear={undefined}
-          onDrillUp={undefined}
-          onDrillDown={undefined}
         />
       </div>
     );
