@@ -1,4 +1,5 @@
 {
+  "version": 2,
   "buildCommand": "cd timer-app && npm install && npm run build",
   "outputDirectory": "timer-app/dist",
   "framework": "vite",
@@ -8,15 +9,14 @@
       "destination": "/index.html"
     }
   ],
-  "builds": [
+  "routes": [
     {
-      "src": "timer-app/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist",
-        "buildCommand": "npm run build",
-        "installCommand": "npm install"
-      }
+      "src": "/assets/(.*)",
+      "dest": "/assets/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ]
 } 
