@@ -1,4 +1,12 @@
 {
+  "name": "timer",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "build": "cd timer-app && npm install && npm run build",
+    "dev": "cd timer-app && npm run dev",
+    "preview": "cd timer-app && npm run preview"
+  },
   "dependencies": {
     "@types/react-calendar": "^4.1.0",
     "lunar-javascript": "^1.7.3",

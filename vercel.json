@@ -1,0 +1,11 @@
+{
+  "buildCommand": "cd timer-app && npm install && npm run build",
+  "outputDirectory": "timer-app/dist",
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+} 
