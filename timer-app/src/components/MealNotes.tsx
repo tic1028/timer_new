@@ -145,9 +145,14 @@ const MealNotes = forwardRef<NotesRef, MealNotesProps>((props, ref) => {
       {isExpanded && (
         <div className="notes-panel">
           <div className="notes-header">
-            <button className="nav-arrow" onClick={() => navigateDate('prev')} disabled={!canNavigatePrev()}>←</button>
-            <span className="notes-date">{currentDate}</span>
-            <button className="nav-arrow" onClick={() => navigateDate('next')} disabled={!canNavigateNext()}>→</button>
+            <button className="close-button general-close-button" onClick={() => setIsExpanded(false)}>
+              &times;
+            </button>
+            <div className="nav-arrows-container">
+              <button className="nav-arrow" onClick={() => navigateDate('prev')} disabled={!canNavigatePrev()}>←</button>
+              <span className="notes-date">{currentDate}</span>
+              <button className="nav-arrow" onClick={() => navigateDate('next')} disabled={!canNavigateNext()}>→</button>
+            </div>
           </div>
           <textarea
             className="notes-textarea"
@@ -161,4 +166,4 @@ const MealNotes = forwardRef<NotesRef, MealNotesProps>((props, ref) => {
   );
 });
 
-export default MealNotes; 
+export default MealNotes;

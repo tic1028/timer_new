@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 interface WaterReminderProps {
   reminderInterval: number;
@@ -11,6 +11,17 @@ const WaterReminder: React.FC<WaterReminderProps> = ({
   isActive,
   onClose
 }) => {
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
   return (
     <div className="water-reminder">
       <h3>喝水提醒</h3>
@@ -21,4 +32,4 @@ const WaterReminder: React.FC<WaterReminderProps> = ({
   );
 };
 
-export default WaterReminder; 
+export default WaterReminder;

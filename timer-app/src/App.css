@@ -750,12 +750,21 @@ body {
 
 .notes-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   margin-bottom: 10px;
+  position: relative;
 }
 
-.notes-header .nav-arrow {
+.nav-arrows-container {
+  display: flex;
+  gap: 20px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.nav-arrows-container .nav-arrow {
   background: none;
   border: none;
   font-size: 1.5em;
@@ -765,7 +774,7 @@ body {
   transition: color 0.2s ease;
 }
 
-.notes-header .nav-arrow:hover {
+.nav-arrows-container .nav-arrow:hover {
   color: #007bff;
 }
 
@@ -773,9 +782,12 @@ body {
   font-size: 1.1em;
   font-weight: bold;
   color: #555;
+  white-space: nowrap;
+  text-align: center;
+  margin-top: 8px;
 }
 
-.notes-textarea {
+/* .notes-textarea {
   width: 100%;
   flex-grow: 1;
   min-height: 200px;
@@ -787,12 +799,33 @@ body {
   line-height: 1.5;
   color: #333;
   outline: none;
+} */
+
+.notes-textarea {
+  width: 100%;
+  min-height: 200px;
+  /* padding: 15px; */
+  /* border-radius: 10px; */
+  border: none;
+  resize: none;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #333;
+  outline: none;
+  margin-top: 10px;
+  background: transparent;
 }
 
-.notes-textarea:focus {
+
+/* .notes-textarea:focus {
   border-color: #007bff;
   box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
   outline: none;
+} */
+.notes-textarea:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
 }
 
 @keyframes expandNotes {
@@ -1866,4 +1899,38 @@ body {
   height: 24px !important;
   line-height: 24px !important;
   display: inline-block !important;
+}
+
+.close-button {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  color: #999;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.close-button:hover {
+  color: #333;
+}
+
+.general-close-button {
+  position: absolute;
+  top: 1px;
+  right: 14px;
+  background: transparent;
+  border: none;
+  font-size: 22px;
+  font-weight: bold;
+  color: #999;
+  left:270px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+.meal-notes-container{
+  position: relative;
+  padding-top: 40px;
 }
