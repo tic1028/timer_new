@@ -50,6 +50,24 @@ interface CalendarDisplayProps {
   paydaySettings: PaydaySettings;
 }
 
+const usHolidayTranslations: { [key: string]: string } = {
+  "New Year's Day": "元旦",
+  "Martin Luther King, Jr. Day": "马丁路德金纪念日",
+  "Washington's Birthday": "总统日",
+  "Good Friday": "耶稣受难日",
+  "Memorial Day": "阵亡将士纪念日",
+  "Juneteenth": "六月节",
+  "Independence Day": "独立日",
+  "Labor Day": "劳动节",
+  "Columbus Day": "哥伦布日",
+  "Veterans Day": "退伍军人节",
+  "Thanksgiving Day": "感恩节",
+  "Christmas Day": "圣诞节",
+  "Halloween": "万圣节",
+  "Easter Sunday": "复活节",
+  "Inauguration Day": "总统就职日",
+};
+
 const chineseHolidays: ChineseHoliday[] = [
   {
     name: "国际劳动妇女节",
@@ -294,43 +312,38 @@ const CalendarDisplay: React.FC<CalendarDisplayProps> = ({ onOpenSettings, event
   const calculatePaydayCountdown = () => {
     const userTimezone = getUserTimezone();
     const today = new Date();
-    const todayInUserTZ = new Date(today.toLocaleString('en-US', { timeZone: userTimezone }));
-    todayInUserTZ.setHours(0, 0, 0, 0);
+    const startOfToday = new Date(today.toLocaleString('en-US', { timeZone: userTimezone }));
+    startOfToday.setHours(0, 0, 0, 0);
+    const msInDay = 1000 * 60 * 60 * 24;
 
     if (paydaySettings.type === 'monthly' && paydaySettings.dayOfMonth) {
-      const targetDate = new Date(todayInUserTZ.getFullYear(), todayInUserTZ.getMonth(), paydaySettings.dayOfMonth);
-      if (targetDate.getTime() < todayInUserTZ.getTime()) {
-        targetDate.setMonth(targetDate.getMonth() + 1);
+      let paydayThisMonth = new Date(startOfToday.getFullYear(), startOfToday.getMonth(), paydaySettings.dayOfMonth);
+      if (paydayThisMonth.getTime() < startOfToday.getTime()) {
+        paydayThisMonth.setMonth(paydayThisMonth.getMonth() + 1);
       }
-      const diffTime = targetDate.getTime() - todayInUserTZ.getTime();
-      return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return Math.round((paydayThisMonth.getTime() - startOfToday.getTime()) / msInDay);
     }
 
     if (paydaySettings.type === 'weekly' && paydaySettings.dayOfWeek !== undefined) {
-      const targetDate = new Date(todayInUserTZ);
-      const daysUntilPayday = (paydaySettings.dayOfWeek - todayInUserTZ.getDay() + 7) % 7;
-      targetDate.setDate(todayInUserTZ.getDate() + daysUntilPayday);
-      const diffTime = targetDate.getTime() - todayInUserTZ.getTime();
-      return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      const daysUntilPayday = (paydaySettings.dayOfWeek - startOfToday.getDay() + 7) % 7;
+      return daysUntilPayday;
     }
 
     if (paydaySettings.type === 'bi-weekly' && paydaySettings.biWeeklyReferenceDate) {
-      const referenceDate = new Date(paydaySettings.biWeeklyReferenceDate);
+      const refDateParts = paydaySettings.biWeeklyReferenceDate.split('-').map(p => parseInt(p, 10));
+      const referenceDate = new Date(refDateParts[0], refDateParts[1] - 1, refDateParts[2]);
       referenceDate.setHours(0, 0, 0, 0);
 
-      const diffTime = referenceDate.getTime() - todayInUserTZ.getTime();
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-      if (diffDays > 0) {
-        return diffDays;
+      if (referenceDate.getTime() >= startOfToday.getTime()) {
+        return Math.round((referenceDate.getTime() - startOfToday.getTime()) / msInDay);
       }
 
-      const nextPayday = new Date(referenceDate);
-      nextPayday.setDate(referenceDate.getDate() + 14);
-      const nextDiffTime = nextPayday.getTime() - todayInUserTZ.getTime();
-      return Math.ceil(nextDiffTime / (1000 * 60 * 60 * 24));
+      const msInCycle = 14 * msInDay;
+      const timeDiffFromRef = startOfToday.getTime() - referenceDate.getTime();
+      const remainder = timeDiffFromRef % msInCycle;
+      const timeUntilNextPayday = (msInCycle - remainder) % msInCycle;
+      return Math.round(timeUntilNextPayday / msInDay);
     }
-
     return null;
   };
 
@@ -385,7 +398,7 @@ const CalendarDisplay: React.FC<CalendarDisplayProps> = ({ onOpenSettings, event
       
       if (holidaysForDate.length > 0) {
         nearestHoliday = {
-          name: holidaysForDate[0].name,
+          name: holidaysForDate[0].localName,
           days: i
         };
         break;
@@ -458,21 +471,30 @@ const CalendarDisplay: React.FC<CalendarDisplayProps> = ({ onOpenSettings, event
   const handleDateSelect = (value: Value) => {
     if (value instanceof Date) {
       setSelectedDate(value);
-      // Get lunar info
       const lunar = Lunar.fromDate(value);
       const lunarYear = lunar.getYearInGanZhi();
       const lunarMonth = lunar.getMonthInChinese();
       const lunarDay = lunar.getDayInChinese();
       const lunarStr = `${lunarYear}年-${lunarMonth}月${lunarDay}`;
-      
-      // Get holidays
+
       const holidaysForDate = getHolidaysForDate(value);
-      const holidayStr = holidaysForDate.length > 0 
-        ? holidaysForDate
-            .map(h => `${h.name}${h.type === 'US' ? ' (US)' : h.type === 'SolarTerm' ? ' (节气)' : ''}`)
-            .join('\n')
+
+      const holidayStr = holidaysForDate.length > 0
+        ? holidaysForDate.map(h => {
+            // This new logic is safe for TypeScript.
+            // 1. Start with localName, which always exists.
+            let displayName = h.localName;
+            
+            // 2. If it's a US holiday AND englishName is available, use it.
+            if (h.type === 'US' && h.englishName) {
+              displayName = h.englishName;
+            }
+
+            const typeLabel = h.type === 'US' ? ' (US)' : h.type === 'SolarTerm' ? ' (节气)' : '';
+            return `${displayName}${typeLabel}`;
+          }).join('\n')
         : '无节日';
-      
+
       const tooltip = `${lunarStr}\n${holidayStr}`;
 
       // Remove any existing tooltips
@@ -621,23 +643,36 @@ const CalendarDisplay: React.FC<CalendarDisplayProps> = ({ onOpenSettings, event
 
     // 合并所有节日信息
     const allHolidays = [
-      ...fixedHolidays.map(h => ({ name: h.name, type: 'Chinese' })),
-      ...lunarHolidays.map(h => ({ name: h.name, type: 'Chinese' })),
-      ...(isMotherDay ? [{ name: '母亲节', type: 'Chinese' }] : []),
-      ...(isFatherDay ? [{ name: '父亲节', type: 'Chinese' }] : []),
-      ...(isValentineDay ? [{ name: '情人节', type: 'Chinese' }] : []),
-      ...(isHalloween ? [{ name: 'Halloween', type: 'US' }] : []),
-      ...(isEasterSunday ? [{ name: 'Easter Sunday', type: 'US' }] : []),
-      ...(isInauguration ? [{ name: 'Inauguration Day', type: 'US' }] : []),
-      ...(solarTerm ? [{ name: solarTerm, type: 'SolarTerm' }] : []),
-      ...apiHolidays.map(h => ({ 
-        name: h.localName, 
-        type: h.countryCode === 'CN' ? 'Chinese' : 'US' 
-      }))
+      ...fixedHolidays.map(h => ({ localName: h.name, englishName: undefined, type: 'Chinese' })),
+      ...lunarHolidays.map(h => ({ localName: h.name, englishName: undefined, type: 'Chinese' })),
+      ...(isMotherDay ? [{ localName: '母亲节', englishName: undefined, type: 'Chinese' }] : []),
+      ...(isFatherDay ? [{ localName: '父亲节', englishName: undefined, type: 'Chinese' }] : []),
+      ...(isValentineDay ? [{ localName: '情人节', englishName: undefined, type: 'Chinese' }] : []),
+      
+      // US holidays already have both properties, which is correct.
+      ...(isHalloween ? [{ localName: usHolidayTranslations['Halloween'], englishName: 'Halloween', type: 'US' }] : []),
+      ...(isEasterSunday ? [{ localName: usHolidayTranslations['Easter Sunday'], englishName: 'Easter Sunday', type: 'US' }] : []),
+      ...(isInauguration ? [{ localName: usHolidayTranslations['Inauguration Day'], englishName: 'Inauguration Day', type: 'US' }] : []),
+      
+      // Also fix Solar Terms to have a consistent shape.
+      // ...(solarTerm ? [{ localName: solarTerm, englishName: undefined, type: 'SolarTerm' }] : []),
+      ...apiHolidays.map(h => {
+        const translatedName = h.countryCode === 'US' && usHolidayTranslations[h.name]
+          ? usHolidayTranslations[h.name]
+          : h.localName;
+        return { 
+          localName: translatedName, 
+          englishName: h.name, 
+          type: h.countryCode === 'CN' ? 'Chinese' : 'US' 
+        };
+      })
     ];
 
+    console.log(allHolidays)
     return allHolidays;
   };
+
+
 
   const tileContent = ({ date, view }: { date: Date, view: string }) => {
     if (view !== 'month') {
