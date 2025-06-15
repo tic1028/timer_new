@@ -16,40 +16,64 @@ interface PaydaySettings {
 
 interface SettingsProps {
   onClose: () => void;
+  // ADD this line
+  initialEvents: EventItem[];
+  // ADD this line
+  onEventsChange: (events: EventItem[]) => void;
   activeTab?: 'anniversary' | 'payday' | 'water';
+  initialPaydaySettings: PaydaySettings;
+  onPaydaySettingsChange: (settings: PaydaySettings) => void;
 }
 
-const Settings: React.FC<SettingsProps> = ({ onClose, activeTab = 'anniversary' }) => {
-  const [events, setEvents] = useState<EventItem[]>(() => {
-    const savedEvents = localStorage.getItem('events');
-    return savedEvents ? JSON.parse(savedEvents) : [
-      { date: '2024-06-07', label: '高考纪念日', isRecurring: false },
-      { date: '2024-06-05', label: '妈妈生日', isRecurring: true },
-    ];
-  });
+const Settings: React.FC<SettingsProps> = ({ 
+  onClose, 
+  initialEvents, 
+  onEventsChange, 
+  initialPaydaySettings, 
+  onPaydaySettingsChange,
+  activeTab = 'anniversary' 
+}) => {
+  // const [events, setEvents] = useState<EventItem[]>(() => {
+  //   const savedEvents = localStorage.getItem('events');
+  //   return savedEvents ? JSON.parse(savedEvents) : [
+  //     { date: '2024-06-07', label: '高考纪念日', isRecurring: false },
+  //     { date: '2024-06-05', label: '妈妈生日', isRecurring: true },
+  //   ];
+  // });
+  const [events, setEvents] = useState<EventItem[]>(initialEvents);
+  useEffect(() => {
+    if (events !== initialEvents) {
+      onEventsChange(events);
+    }
+  }, [events, initialEvents, onEventsChange]);
   const [newEvent, setNewEvent] = useState<EventItem>({ date: '', label: '', isRecurring: true });
   const [newDate, setNewDate] = useState('');
   const [dateError, setDateError] = useState('');
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
-  const [paydaySettings, setPaydaySettings] = useState<PaydaySettings>(() => {
-    const savedSettings = localStorage.getItem('paydaySettings');
-    if (savedSettings) {
-      const parsed = JSON.parse(savedSettings);
-      return {
-        type: parsed.type || 'monthly',
-        dayOfMonth: typeof parsed.dayOfMonth === 'number' && !isNaN(parsed.dayOfMonth) ? parsed.dayOfMonth : undefined,
-        dayOfWeek: typeof parsed.dayOfWeek === 'number' && !isNaN(parsed.dayOfWeek) ? parsed.dayOfWeek : undefined,
-        biWeeklyReferenceDate: parsed.biWeeklyReferenceDate || undefined,
-      };
-    }
-    return {
-      type: 'monthly',
-      dayOfMonth: undefined,
-      dayOfWeek: undefined,
-      biWeeklyReferenceDate: undefined,
-    };
-  });
+  // const [paydaySettings, setPaydaySettings] = useState<PaydaySettings>(() => {
+  //   const savedSettings = localStorage.getItem('paydaySettings');
+  //   if (savedSettings) {
+  //     const parsed = JSON.parse(savedSettings);
+  //     return {
+  //       type: parsed.type || 'monthly',
+  //       dayOfMonth: typeof parsed.dayOfMonth === 'number' && !isNaN(parsed.dayOfMonth) ? parsed.dayOfMonth : undefined,
+  //       dayOfWeek: typeof parsed.dayOfWeek === 'number' && !isNaN(parsed.dayOfWeek) ? parsed.dayOfWeek : undefined,
+  //       biWeeklyReferenceDate: parsed.biWeeklyReferenceDate || undefined,
+  //     };
+  //   }
+  //   return {
+  //     type: 'monthly',
+  //     dayOfMonth: undefined,
+  //     dayOfWeek: undefined,
+  //     biWeeklyReferenceDate: undefined,
+  //   };
+  // });
   const [currentTab, setCurrentTab] = useState<'anniversary' | 'payday' | 'water'>(activeTab);
+  const [paydaySettings, setPaydaySettings] = useState<PaydaySettings>(initialPaydaySettings);
+
+  useEffect(() => {
+    onPaydaySettingsChange(paydaySettings);
+  }, [paydaySettings, onPaydaySettingsChange]);
 
   useEffect(() => {
     localStorage.setItem('events', JSON.stringify(events));
@@ -116,7 +140,7 @@ const Settings: React.FC<SettingsProps> = ({ onClose, activeTab = 'anniversary' 
     }
 
     setEvents(updatedEvents);
-    localStorage.setItem('events', JSON.stringify(updatedEvents));
+    // localStorage.setItem('events', JSON.stringify(updatedEvents));
     setNewEvent({ date: '', label: '', isRecurring: true });
     setNewDate('');
   };
@@ -162,7 +186,7 @@ const Settings: React.FC<SettingsProps> = ({ onClose, activeTab = 'anniversary' 
       }
     }
     console.log('Saving payday settings:', paydaySettings);
-    localStorage.setItem('paydaySettings', JSON.stringify(paydaySettings));
+    // localStorage.setItem('paydaySettings', JSON.stringify(paydaySettings));
     alert('发工资设置已保存！');
   };
 

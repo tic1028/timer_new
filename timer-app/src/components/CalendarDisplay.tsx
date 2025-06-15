@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import Calendar from 'react-calendar';
@@ -25,6 +26,7 @@ interface CalendarEvent {
   isRecurring: boolean;
 }
 
+// MODIFIED: This interface now also needs to be defined here
 interface PaydaySettings {
   type: 'monthly' | 'weekly' | 'bi-weekly';
   dayOfMonth?: number;
@@ -44,6 +46,8 @@ interface ChineseHoliday {
 
 interface CalendarDisplayProps {
   onOpenSettings: () => void;
+  events: CalendarEvent[];
+  paydaySettings: PaydaySettings;
 }
 
 const chineseHolidays: ChineseHoliday[] = [
@@ -189,38 +193,34 @@ const isInaugurationYear = (year: number): boolean => {
   return year % 4 === 1;
 };
 
-const CalendarDisplay: React.FC<CalendarDisplayProps> = ({ onOpenSettings }) => {
+// 获取用户时区
+const getUserTimezone = () => Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+const CalendarDisplay: React.FC<CalendarDisplayProps> = ({ onOpenSettings, events, paydaySettings }) => {
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
   const [showCalendar, setShowCalendar] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [holidays, setHolidays] = useState<Holiday[]>([]);
-  const [events] = useState<CalendarEvent[]>(() => {
-    const savedEvents = localStorage.getItem('events');
-    return savedEvents ? JSON.parse(savedEvents) : [
-      { date: '2024-06-07', label: '高考纪念日', isRecurring: false },
-      { date: '2024-06-05', label: '妈妈生日', isRecurring: true },
-    ];
-  });
-  const [paydaySettings] = useState<PaydaySettings>(() => {
-    const savedSettings = localStorage.getItem('paydaySettings');
-    if (savedSettings) {
-      const parsed = JSON.parse(savedSettings);
-      console.log('Loading payday settings from localStorage:', parsed);
-      return {
-        type: parsed.type || 'monthly',
-        dayOfMonth: typeof parsed.dayOfMonth === 'number' && !isNaN(parsed.dayOfMonth) ? parsed.dayOfMonth : undefined,
-        dayOfWeek: typeof parsed.dayOfWeek === 'number' && !isNaN(parsed.dayOfWeek) ? parsed.dayOfWeek : undefined,
-        biWeeklyReferenceDate: parsed.biWeeklyReferenceDate || undefined,
-      };
-    }
-    console.log('No saved payday settings found, using defaults');
-    return {
-      type: 'monthly',
-      dayOfMonth: undefined,
-      dayOfWeek: undefined,
-      biWeeklyReferenceDate: undefined,
-    };
-  });
+  
+  // Fixed: Initialize events state properly (removed localStorage since it's not available in artifacts)
+  // const [events] = useState<CalendarEvent[]>([
+  //   { date: '2024-06-07', label: '高考纪念日', isRecurring: false },
+  //   { date: '2024-06-05', label: '妈妈生日', isRecurring: true },
+  // ]);
+  // const [events, setEvents] = useState<CalendarEvent[]>(() => {
+  //   const savedEvents = localStorage.getItem('events');
+  //   // If there are saved events, parse them. Otherwise, start with an empty array.
+  //   return savedEvents ? JSON.parse(savedEvents) : [];
+  // });
+
+  // Fixed: Initialize payday settings properly (removed localStorage)
+  // const [paydaySettings] = useState<PaydaySettings>({
+  //   type: 'monthly',
+  //   dayOfMonth: 15, // Default to 15th of month
+  //   dayOfWeek: undefined,
+  //   biWeeklyReferenceDate: undefined,
+  // });
+
   const calendarRef = useRef<HTMLDivElement>(null);
   const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null);
 
@@ -272,39 +272,45 @@ const CalendarDisplay: React.FC<CalendarDisplayProps> = ({ onOpenSettings }) => 
   useEffect(() => {
     const year = new Date().getFullYear();
     const fetchHolidays = async () => {
-      const [cnRes, usRes] = await Promise.all([
-        fetch(`https://date.nager.at/api/v3/PublicHolidays/${year}/CN`),
-        fetch(`https://date.nager.at/api/v3/PublicHolidays/${year}/US`)
-      ]);
-      const [cnHolidays, usHolidays] = await Promise.all([cnRes.json(), usRes.json()]);
-      // Add countryCode to each for distinction
-      const allHolidays = [
-        ...cnHolidays.map((h: any) => ({ ...h, countryCode: 'CN' })),
-        ...usHolidays.map((h: any) => ({ ...h, countryCode: 'US' }))
-      ];
-      setHolidays(allHolidays);
+      try {
+        const [cnRes, usRes] = await Promise.all([
+          fetch(`https://date.nager.at/api/v3/PublicHolidays/${year}/CN`),
+          fetch(`https://date.nager.at/api/v3/PublicHolidays/${year}/US`)
+        ]);
+        const [cnHolidays, usHolidays] = await Promise.all([cnRes.json(), usRes.json()]);
+        // Add countryCode to each for distinction
+        const allHolidays = [
+          ...cnHolidays.map((h: any) => ({ ...h, countryCode: 'CN' })),
+          ...usHolidays.map((h: any) => ({ ...h, countryCode: 'US' }))
+        ];
+        setHolidays(allHolidays);
+      } catch (error) {
+        console.error('Failed to fetch holidays:', error);
+      }
     };
     fetchHolidays();
   }, []);
 
   const calculatePaydayCountdown = () => {
+    const userTimezone = getUserTimezone();
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const todayInUserTZ = new Date(today.toLocaleString('en-US', { timeZone: userTimezone }));
+    todayInUserTZ.setHours(0, 0, 0, 0);
 
     if (paydaySettings.type === 'monthly' && paydaySettings.dayOfMonth) {
-      const targetDate = new Date(today.getFullYear(), today.getMonth(), paydaySettings.dayOfMonth);
-      if (targetDate.getTime() < today.getTime()) {
+      const targetDate = new Date(todayInUserTZ.getFullYear(), todayInUserTZ.getMonth(), paydaySettings.dayOfMonth);
+      if (targetDate.getTime() < todayInUserTZ.getTime()) {
         targetDate.setMonth(targetDate.getMonth() + 1);
       }
-      const diffTime = targetDate.getTime() - today.getTime();
+      const diffTime = targetDate.getTime() - todayInUserTZ.getTime();
       return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     }
 
     if (paydaySettings.type === 'weekly' && paydaySettings.dayOfWeek !== undefined) {
-      const targetDate = new Date(today);
-      const daysUntilPayday = (paydaySettings.dayOfWeek - today.getDay() + 7) % 7;
-      targetDate.setDate(today.getDate() + daysUntilPayday);
-      const diffTime = targetDate.getTime() - today.getTime();
+      const targetDate = new Date(todayInUserTZ);
+      const daysUntilPayday = (paydaySettings.dayOfWeek - todayInUserTZ.getDay() + 7) % 7;
+      targetDate.setDate(todayInUserTZ.getDate() + daysUntilPayday);
+      const diffTime = targetDate.getTime() - todayInUserTZ.getTime();
       return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     }
 
@@ -312,7 +318,7 @@ const CalendarDisplay: React.FC<CalendarDisplayProps> = ({ onOpenSettings }) => 
       const referenceDate = new Date(paydaySettings.biWeeklyReferenceDate);
       referenceDate.setHours(0, 0, 0, 0);
 
-      const diffTime = referenceDate.getTime() - today.getTime();
+      const diffTime = referenceDate.getTime() - todayInUserTZ.getTime();
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
       if (diffDays > 0) {
@@ -321,7 +327,7 @@ const CalendarDisplay: React.FC<CalendarDisplayProps> = ({ onOpenSettings }) => 
 
       const nextPayday = new Date(referenceDate);
       nextPayday.setDate(referenceDate.getDate() + 14);
-      const nextDiffTime = nextPayday.getTime() - today.getTime();
+      const nextDiffTime = nextPayday.getTime() - todayInUserTZ.getTime();
       return Math.ceil(nextDiffTime / (1000 * 60 * 60 * 24));
     }
 
@@ -357,40 +363,79 @@ const CalendarDisplay: React.FC<CalendarDisplayProps> = ({ onOpenSettings }) => 
   };
 
   const lunarCalendarInfo = calculateLunarDate();
-  const gaokaoCountdown = 8;
+
+  const getNextHolidayCountdown = () => {
+    const userTimezone = getUserTimezone();
+    const today = new Date();
+    
+    // 使用用户时区创建今天的日期
+    const todayInUserTZ = new Date(today.toLocaleString('en-US', { timeZone: userTimezone }));
+    todayInUserTZ.setHours(0, 0, 0, 0);
+    
+    let nearestHoliday = null;
+    
+    // 检查未来365天内的节日
+    for (let i = 0; i < 365; i++) {
+      const checkDate = new Date(todayInUserTZ);
+      checkDate.setDate(todayInUserTZ.getDate() + i);
+      
+      // 确保检查的日期也在用户时区
+      const checkDateInUserTZ = new Date(checkDate.toLocaleString('en-US', { timeZone: userTimezone }));
+      const holidaysForDate = getHolidaysForDate(checkDateInUserTZ);
+      
+      if (holidaysForDate.length > 0) {
+        nearestHoliday = {
+          name: holidaysForDate[0].name,
+          days: i
+        };
+        break;
+      }
+    }
+    
+    return nearestHoliday;
+  };
 
   const getUpcomingEvents = () => {
+    const userTimezone = getUserTimezone();
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const result = [];
-
-    // 创建一个数组来存储事件和它们的天数差
-    const eventsWithDays = events.map(event => {
-      const eventDate = new Date(event.date);
-      const targetDate = new Date(eventDate);
-
+    const todayInUserTZ = new Date(today.toLocaleString('en-US', { timeZone: userTimezone }));
+    todayInUserTZ.setHours(0, 0, 0, 0);
+  
+    const upcoming = events.map(event => {
+      // FIX: Robustly parse the 'YYYY-MM-DD' string to avoid timezone issues.
+      const dateParts = event.date.split('-').map(p => parseInt(p, 10));
+      const eventDate = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
+  
+      const targetDate = new Date(eventDate); // Create a mutable copy
+  
       if (event.isRecurring) {
-        targetDate.setFullYear(today.getFullYear());
-        if (targetDate.getTime() < today.getTime()) {
-          targetDate.setFullYear(today.getFullYear() + 1);
+        targetDate.setFullYear(todayInUserTZ.getFullYear());
+        // If the recurring event for this year has already passed, set it to next year.
+        if (targetDate.getTime() < todayInUserTZ.getTime()) {
+          targetDate.setFullYear(todayInUserTZ.getFullYear() + 1);
+        }
+      } else {
+        // If a non-recurring event is in the past, filter it out.
+        if (targetDate.getTime() < todayInUserTZ.getTime()) {
+          return null;
         }
       }
-
+  
       targetDate.setHours(0, 0, 0, 0);
-      const diffTime = targetDate.getTime() - today.getTime();
+      const diffTime = targetDate.getTime() - todayInUserTZ.getTime();
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
+  
       return {
         event,
         diffDays
       };
-    });
-
-    // 按照天数差排序
-    eventsWithDays.sort((a, b) => a.diffDays - b.diffDays);
-
-    // 只显示未来7天内的事件
-    for (const { event, diffDays } of eventsWithDays) {
+    })
+    .filter((item): item is { event: CalendarEvent; diffDays: number } => item !== null) // Filter out past non-recurring events
+    .sort((a, b) => a.diffDays - b.diffDays);
+  
+    // Filter for events in the next 7 days and create the JSX elements
+    const result: JSX.Element[] = [];
+    for (const { event, diffDays } of upcoming) {
       if (diffDays >= 0 && diffDays <= 7) {
         result.push(
           <span key={event.label + event.date}>
@@ -400,6 +445,7 @@ const CalendarDisplay: React.FC<CalendarDisplayProps> = ({ onOpenSettings }) => 
         );
       }
     }
+    
     return result;
   };
 
@@ -517,8 +563,8 @@ const CalendarDisplay: React.FC<CalendarDisplayProps> = ({ onOpenSettings }) => 
           value={selectedDate}
           className="calendar"
           tileContent={tileContent}
-                    locale="zh-CN"
-                    formatDay={(locale, date) => date.getDate().toString()}
+          locale="zh-CN"
+          formatDay={(locale, date) => date.getDate().toString()}
         />
       </div>
     );
@@ -526,15 +572,7 @@ const CalendarDisplay: React.FC<CalendarDisplayProps> = ({ onOpenSettings }) => 
     return createPortal(calendarContent, portalContainer);
   };
 
-  const tileClassName = ({ date }: { date: Date }) => {
-    const dateStr = date.toISOString().split('T')[0];
-    const holidaysForDate = holidays.filter(h => h.date === dateStr);
-    let classes = [];
-    if (holidaysForDate.some(h => h.countryCode === 'CN')) classes.push('circle-cn');
-    if (holidaysForDate.some(h => h.countryCode === 'US')) classes.push('circle-us');
-    if (holidaysForDate.length > 0) classes.push('has-holiday-tooltip');
-    return classes.length > 0 ? classes.join(' ') : null;
-  };
+  // Fixed: Removed unused tileClassName function since it's not being used
 
   const getHolidaysForDate = (date: Date) => {
     const dateStr = date.toISOString().split('T')[0];
@@ -601,7 +639,7 @@ const CalendarDisplay: React.FC<CalendarDisplayProps> = ({ onOpenSettings }) => 
     return allHolidays;
   };
 
-  const tileContent = ({ date,view }: { date: Date,view: string }) => {
+  const tileContent = ({ date, view }: { date: Date, view: string }) => {
     if (view !== 'month') {
       return null;
     }
@@ -615,6 +653,9 @@ const CalendarDisplay: React.FC<CalendarDisplayProps> = ({ onOpenSettings }) => 
       </div>
     );
   };
+
+  // Fixed: Handle potential null return from getNextHolidayCountdown
+  const nextHoliday = getNextHolidayCountdown();
 
   return (
     <div className="glass-panel date-time-panel">
@@ -636,7 +677,13 @@ const CalendarDisplay: React.FC<CalendarDisplayProps> = ({ onOpenSettings }) => 
         <div className="time-display">
           {formatTime(currentDateTime)}
           <div className="countdown-text">
-            距离期末还有<span className="countdown-days">{gaokaoCountdown}天</span>
+            {nextHoliday ? (
+              <>
+                距离{nextHoliday.name}还有<span className="countdown-days">{nextHoliday.days}天</span>
+              </>
+            ) : (
+              '暂无即将到来的节日'
+            )}
           </div>
         </div>
       </div>
