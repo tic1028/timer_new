@@ -20,7 +20,8 @@ interface CalendarDisplayProps {
 
 interface HolidayInfo {
 	localName: string;
-	type: "US" | "Chinese";
+	englishName: string;
+	type: ("US" | "Chinese")[];
 	isDayOff: boolean;
 }
 
@@ -105,6 +106,7 @@ const CalendarDisplay: React.FC<CalendarDisplayProps> = ({
 					localName: def.localName,
 					type: def.type,
 					isDayOff: setting.isDayOff,
+					englishName: def.englishName,
 				});
 				holidayMap.set(dateStr, holidayForDate);
 			}
@@ -325,31 +327,24 @@ const CalendarDisplay: React.FC<CalendarDisplayProps> = ({
 			const dateStr = value.toISOString().split("T")[0];
 			const holidaysForDate = holidaysByDate.get(dateStr) || [];
 
+			const solarTerm = lunar.getJieQi();
+			const holidayDisplayItems = holidaysForDate.map((h) => {
+				const isChinese = h.type.includes("Chinese");
+				const isUS = h.type.includes("US");
+				if (isChinese && isUS) return h.localName;
+				if (isUS) return h.englishName;
+				return h.localName;
+			});
+			if (solarTerm) {
+				holidayDisplayItems.push(`${solarTerm} (节气)`);
+			}
 			const holidayStr =
-				holidaysForDate.length > 0
-					? holidaysForDate
-							.map((h) => {
-								// This new logic is safe for TypeScript.
-								// 1. Start with localName, which always exists.
-								let displayName = h.localName;
-
-								// 2. If it's a US holiday AND englishName is available, use it.
-								if (h.type === "US" && h.englishName) {
-									displayName = h.englishName;
-								}
-
-								const typeLabel =
-									h.type === "US"
-										? " (US)"
-										: h.type === "SolarTerm"
-										? " (节气)"
-										: "";
-								return `${displayName}${typeLabel}`;
-							})
-							.join("\n")
+				holidayDisplayItems.length > 0
+					? holidayDisplayItems.join("\n")
 					: "无节日";
 
 			const tooltip = `${lunarStr}\n${holidayStr}`;
+			// const tooltip = `<span class="math-inline">\{lunarStr\}\\n</span>{holidayStr}`;
 
 			// Remove any existing tooltips
 			const existingTooltips =
@@ -473,7 +468,7 @@ const CalendarDisplay: React.FC<CalendarDisplayProps> = ({
 			const dateStr = date.toISOString().split("T")[0];
 			const holidays = holidaysByDate.get(dateStr);
 			if (holidays && holidays.some((h) => h.isDayOff)) {
-				return "放假";
+				return "day-off";
 			}
 		}
 		return null;
@@ -484,14 +479,20 @@ const CalendarDisplay: React.FC<CalendarDisplayProps> = ({
 
 		const dateStr = date.toISOString().split("T")[0];
 		const holidays = holidaysByDate.get(dateStr);
+		const solarTerm = Lunar.fromDate(date).getJieQi(); // Calculate Solar Term
 
-		if (holidays && holidays.length > 0) {
-			const hasChinese = holidays.some((h) => h.type === "Chinese");
-			const hasUS = holidays.some((h) => h.type === "US");
+		if ((holidays && holidays.length > 0) || solarTerm) {
+			const hasChinese = holidays?.some((h) =>
+				h.type.includes("Chinese")
+			);
+			const hasUS = holidays?.some((h) => h.type.includes("US"));
 			return (
 				<div className="holiday-circles">
 					{hasChinese && <span className="holiday-circle cn"></span>}
 					{hasUS && <span className="holiday-circle us"></span>}
+					{solarTerm && (
+						<span className="holiday-circle solar"></span>
+					)}
 				</div>
 			);
 		}
