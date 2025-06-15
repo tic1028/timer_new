@@ -11,7 +11,7 @@
   height: 150px;
   min-height: 120px;
   position: absolute;
-  top:70px;
+  top:90px;
   left: 50%;
   transform: translateX(-50%);
 }

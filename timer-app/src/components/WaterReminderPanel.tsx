@@ -25,10 +25,22 @@ const WaterReminderPanel: React.FC<WaterReminderPanelProps> = ({ onClose }) => {
     return saved ? parseInt(saved, 10) : 8;
   });
   const audio = useRef<HTMLAudioElement | null>(null);
+  const panelRef = useRef<HTMLDivElement>(null); // Add panel reference
 
   useEffect(() => {
     audio.current = new Audio(waterNotificationSound);
   }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+  
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
 
   useEffect(() => {
     localStorage.setItem('waterReminderInterval', reminderInterval.toString());
@@ -99,7 +111,7 @@ const WaterReminderPanel: React.FC<WaterReminderPanelProps> = ({ onClose }) => {
   };
 
   return (
-    <div className="water-reminder-panel">
+    <div className="water-reminder-panel" ref={panelRef}> {/* Attach ref here */}
       <div className="water-reminder-header">
         <h2>喝水提醒</h2>
         <button className="close-button" onClick={onClose}>×</button>
@@ -186,4 +198,4 @@ const WaterReminderPanel: React.FC<WaterReminderPanelProps> = ({ onClose }) => {
 };
 
 console.log('WaterReminderPanel');
-export default WaterReminderPanel; 
+export default WaterReminderPanel;
