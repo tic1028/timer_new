@@ -517,6 +517,8 @@ const CalendarDisplay: React.FC<CalendarDisplayProps> = ({ onOpenSettings }) => 
           value={selectedDate}
           className="calendar"
           tileContent={tileContent}
+                    locale="zh-CN"
+                    formatDay={(locale, date) => date.getDate().toString()}
         />
       </div>
     );
@@ -599,7 +601,10 @@ const CalendarDisplay: React.FC<CalendarDisplayProps> = ({ onOpenSettings }) => 
     return allHolidays;
   };
 
-  const tileContent = ({ date }: { date: Date }) => {
+  const tileContent = ({ date,view }: { date: Date,view: string }) => {
+    if (view !== 'month') {
+      return null;
+    }
     const holidaysForDate = getHolidaysForDate(date);
     
     return (
