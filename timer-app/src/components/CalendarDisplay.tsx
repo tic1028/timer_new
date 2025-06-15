@@ -295,13 +295,20 @@ const CalendarDisplay: React.FC<CalendarDisplayProps> = ({
 		// Filter for events in the next 7 days and create the JSX elements
 		const result: JSX.Element[] = [];
 		for (const { event, diffDays } of upcoming) {
-			if (diffDays >= 0 && diffDays <= 7) {
+			if (diffDays > 0 && diffDays <= 7) {
 				result.push(
 					<span key={event.label + event.date}>
 						距离{event.label}还有
 						<span className="event-countdown-days">
 							{diffDays}天
 						</span>
+					</span>
+				);
+			} else if (diffDays === 0) {
+				result.push(
+					<span key={event.label + event.date}>
+						{event.label}就是
+						<span className="event-countdown-days">今天</span>
 					</span>
 				);
 			}
@@ -520,12 +527,23 @@ const CalendarDisplay: React.FC<CalendarDisplayProps> = ({
 					{formatTime(currentDateTime)}
 					<div className="countdown-text">
 						{nextHoliday ? (
-							<>
-								距离{nextHoliday.name}还有
-								<span className="countdown-days">
-									{nextHoliday.days}天
+							// Check if the holiday is today (countdown is 0 days)
+							nextHoliday.days === 0 ? (
+								<span className="holiday-today-text">
+									{nextHoliday.name} 就是
+									<span className="countdown-days">
+										今天!
+									</span>
 								</span>
-							</>
+							) : (
+								// Otherwise, show the regular countdown
+								<>
+									距离{nextHoliday.name}还有
+									<span className="countdown-days">
+										{nextHoliday.days}天
+									</span>
+								</>
+							)
 						) : (
 							"暂无即将到来的节日"
 						)}
@@ -533,14 +551,21 @@ const CalendarDisplay: React.FC<CalendarDisplayProps> = ({
 				</div>
 			</div>
 			<div className="countdown">
-				{paydayCountdown !== null && (
-					<div className="payday-countdown-text">
-						距离发工资还有
-						<span className="payday-countdown-days">
-							{paydayCountdown}天 💸
-						</span>
-					</div>
-				)}
+				{paydayCountdown !== null &&
+					(paydayCountdown === 0 ? (
+						// This is the new message for the actual payday
+						<div className="payday-countdown-text">
+							发工资啦！数钱啦！ 🤑
+						</div>
+					) : (
+						// This is the original countdown for other days
+						<div className="payday-countdown-text">
+							距离发工资还有
+							<span className="payday-countdown-days">
+								{paydayCountdown}天 💸
+							</span>
+						</div>
+					))}
 			</div>
 			<div className="anniversary">
 				{upcomingEvents.length > 0 && (
