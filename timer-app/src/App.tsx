@@ -1,111 +1,187 @@
-import './App.css'
-import React, { useRef, useState, useEffect } from 'react'; // NEW: Added useEffect
-import Pomodoro from './components/Pomodoro';
-import Schedule from './components/Schedule';
-import MealNotes from './components/MealNotes';
-import Notes from './components/Notes';
-import CalendarDisplay from './components/CalendarDisplay';
-import Settings from './components/Settings';
-import WaterReminderPanel from './components/WaterReminderPanel';
-import WaterReminderService from './components/WaterReminderService';
-import WoodenFish from './components/WoodenFish';
+import "./App.css";
+import { useRef, useState, useEffect } from "react"; // NEW: Added useEffect
+import Pomodoro from "./components/Pomodoro";
+import Schedule from "./components/Schedule";
+import MealNotes from "./components/MealNotes";
+import Notes from "./components/Notes";
+import CalendarDisplay from "./components/CalendarDisplay";
+import Settings from "./components/Settings";
+import WaterReminderPanel from "./components/WaterReminderPanel";
+import WaterReminderService from "./components/WaterReminderService";
+import WoodenFish from "./components/WoodenFish";
+import { HOLIDAY_DEFINITIONS } from "./holidayUtils";
+import type { HolidayDefinition } from "./holidayUtils";
+import type { EventItem, PaydaySettings, HolidaySetting } from "./types"; // CORRECTED IMPORT
 
 interface MealNotesRef {
-  openAndPreFillMeals: () => void;
+	openAndPreFillMeals: () => void;
 }
 
-// NEW: Define the shared event interface in the parent component.
-interface CalendarEvent {
-  date: string;
-  label: string;
-  isRecurring: boolean;
-}
-// NEW: Define the PaydaySettings interface in the parent component
-interface PaydaySettings {
-  type: 'monthly' | 'weekly' | 'bi-weekly';
-  dayOfMonth?: number;
-  dayOfWeek?: number;
-  biWeeklyReferenceDate?: string;
-}
+const getFromStorage = <T,>(key: string, defaultValue: T): T => {
+	const saved = localStorage.getItem(key);
+	if (saved) {
+		try {
+			return JSON.parse(saved);
+		} catch (e) {
+			console.error(`Failed to parse ${key} from localStorage`, e);
+			return defaultValue;
+		}
+	}
+	return defaultValue;
+};
+
+// Function to create default holiday settings
+const createDefaultHolidaySettings = (): HolidaySetting[] => {
+	const defaultDaysOff = [
+		// US Holidays
+		"new-years-day",
+		"mlk-day",
+		"memorial-day",
+		"independence-day",
+		"labor-day",
+		"thanksgiving-day",
+		"christmas-day",
+		// Chinese Holidays
+		"chinese-new-year",
+		"qingming-festival",
+		"dragon-boat-festival",
+		"mid-autumn-festival",
+	];
+	return HOLIDAY_DEFINITIONS.map((def: HolidayDefinition) => ({
+		id: def.id,
+		localName: def.localName,
+		type: def.type,
+		showInCalendar: true, // Show all holidays in calendar by default
+		// Only show major holidays in the countdown by default
+		showInCountdown: [
+			"chinese-new-year",
+			"mid-autumn-festival",
+			"thanksgiving-day",
+			"christmas-day",
+			"lantern-festival",
+			"qingming-festival",
+			"dragon-boat-festival",
+			"international-womens-day",
+			"childrens-day-cn",
+			"teachers-day-cn",
+			"new-years-day",
+			"mlk-day",
+			"mothers-day",
+			"memorial-day",
+			"fathers-day",
+			"independence-day",
+			"labor-day",
+			"halloween",
+		].includes(def.id),
+		isDayOff: defaultDaysOff.includes(def.id), // Nothing is a day off by default
+	}));
+};
 
 function App() {
-  const mealNotesRef = useRef<MealNotesRef>(null);
-  const [showSettings, setShowSettings] = useState(false);
-  const [showWaterReminder, setShowWaterReminder] = useState(false);
-  const [activeSettingsTab, setActiveSettingsTab] = useState<'anniversary' | 'payday' | 'water'>('anniversary');
+	const mealNotesRef = useRef<MealNotesRef>(null);
+	const [showSettings, setShowSettings] = useState(false);
+	const [showWaterReminder, setShowWaterReminder] = useState(false);
+	const [activeSettingsTab, setActiveSettingsTab] = useState<
+		"anniversary" | "payday"
+	>("anniversary");
 
-  // NEW: The 'events' state has been "lifted up" to App.tsx.
-  // It now serves as the single source of truth for all child components.
-  const [events, setEvents] = useState<CalendarEvent[]>(() => {
-    const savedEvents = localStorage.getItem('events');
-    return savedEvents ? JSON.parse(savedEvents) : [];
-  });
+	const [events, setEvents] = useState<EventItem[]>(() => {
+		const savedEvents = localStorage.getItem("events");
+		return savedEvents ? JSON.parse(savedEvents) : [];
+	});
+	const [paydaySettings, setPaydaySettings] = useState<PaydaySettings>(() =>
+		getFromStorage<PaydaySettings>("paydaySettings", {
+			type: "monthly",
+			dayOfMonth: 15,
+		})
+	);
 
-  // NEW: This effect runs whenever the 'events' state changes,
-  // ensuring that any updates are saved to the browser's local storage.
-  useEffect(() => {
-    localStorage.setItem('events', JSON.stringify(events));
-  }, [events]);
-  // NEW: Add state management for Payday Settings
-  const [paydaySettings, setPaydaySettings] = useState<PaydaySettings>(() => {
-    const saved = localStorage.getItem('paydaySettings');
-    // Provide a default value if nothing is in storage
-    return saved ? JSON.parse(saved) : { type: 'monthly', dayOfMonth: 15 };
-  });
-  // NEW: Save payday settings to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem('paydaySettings', JSON.stringify(paydaySettings));
-  }, [paydaySettings]);
+	const [holidaySettings, setHolidaySettings] = useState<HolidaySetting[]>(
+		() => {
+			const savedSettings = getFromStorage<HolidaySetting[]>(
+				"holidaySettings",
+				[]
+			);
+			// If saved settings don't cover all defined holidays (e.g., app update), regenerate
+			if (savedSettings.length !== HOLIDAY_DEFINITIONS.length) {
+				return createDefaultHolidaySettings();
+			}
+			return savedSettings;
+		}
+	);
 
-  const handleEatWhatClick = () => {
-    mealNotesRef.current?.openAndPreFillMeals();
-  };
+	useEffect(() => {
+		localStorage.setItem("events", JSON.stringify(events));
+	}, [events]);
 
-  return (
-    <div className="app-container">
-      <WaterReminderService />
-      {showSettings ? (
-        <Settings 
-          onClose={() => setShowSettings(false)} 
-          activeTab={activeSettingsTab}
-          // NEW: Pass the current events and the function to update them to the Settings panel.
-          initialEvents={events}
-          onEventsChange={setEvents}
-          // NEW: Pass payday state and its update function to Settings
-          initialPaydaySettings={paydaySettings}
-          onPaydaySettingsChange={setPaydaySettings}
-        />
-      ) : showWaterReminder ? (
-        <WaterReminderPanel onClose={() => setShowWaterReminder(false)} />
-      ) : (
-        <div className="glass-panel main-panel">
-          <CalendarDisplay 
-            onOpenSettings={() => {
-              setActiveSettingsTab('anniversary');
-              setShowSettings(true);
-            }} 
-            // NEW: Pass the events data down to CalendarDisplay as a prop.
-            events={events}
-             // NEW: Pass the payday state down to CalendarDisplay
-             paydaySettings={paydaySettings}
-          />
-          <Pomodoro />
-          <Schedule />
-          <div className="glass-panel tools-panel">
-            <div className="tool-grid">
-              <div className="tool-item water-reminder-tool-item" onClick={() => setShowWaterReminder(true)}>
-                <div className="tool-icon"></div>
-                <div className="tool-label">喝水提醒</div>
-              </div>
-              <MealNotes ref={mealNotesRef} onEatWhatClick={handleEatWhatClick} />
-              <Notes />
-              <WoodenFish />
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  )
+	useEffect(() => {
+		localStorage.setItem("paydaySettings", JSON.stringify(paydaySettings));
+	}, [paydaySettings]);
+
+	useEffect(() => {
+		localStorage.setItem(
+			"holidaySettings",
+			JSON.stringify(holidaySettings)
+		);
+	}, [holidaySettings]);
+
+	const handleEatWhatClick = () => {
+		mealNotesRef.current?.openAndPreFillMeals();
+	};
+
+	//Idea: list the state of local storage up to app, parent
+	return (
+		<div className="app-container">
+			<WaterReminderService />
+			{showSettings ? (
+				<Settings
+					onClose={() => setShowSettings(false)}
+					activeTab={activeSettingsTab}
+					initialEvents={events}
+					onEventsChange={setEvents}
+					initialPaydaySettings={paydaySettings}
+					onPaydaySettingsChange={setPaydaySettings}
+					initialHolidaySettings={holidaySettings}
+					onHolidaySettingsChange={setHolidaySettings}
+				/>
+			) : showWaterReminder ? (
+				<WaterReminderPanel
+					onClose={() => setShowWaterReminder(false)}
+				/>
+			) : (
+				<div className="glass-panel main-panel">
+					<CalendarDisplay
+						onOpenSettings={() => {
+							setActiveSettingsTab("anniversary");
+							setShowSettings(true);
+						}}
+						events={events}
+						paydaySettings={paydaySettings}
+						holidaySettings={holidaySettings}
+					/>
+					<Pomodoro />
+					<Schedule />
+					<div className="glass-panel tools-panel">
+						<div className="tool-grid">
+							<div
+								className="tool-item water-reminder-tool-item"
+								onClick={() => setShowWaterReminder(true)}
+							>
+								<div className="tool-icon"></div>
+								<div className="tool-label">喝水提醒</div>
+							</div>
+							<MealNotes
+								ref={mealNotesRef}
+								onEatWhatClick={handleEatWhatClick}
+							/>
+							<Notes />
+							<WoodenFish />
+						</div>
+					</div>
+				</div>
+			)}
+		</div>
+	);
 }
 
-export default App
+export default App;

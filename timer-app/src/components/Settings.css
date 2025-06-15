@@ -1,167 +1,341 @@
-.settings-panel {
-  background: rgba(255, 255, 255, 0.7);
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  margin: 40px auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+/* .settings-panel {
+	background: rgba(255, 255, 255, 0.7);
+	border-radius: 20px;
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+	backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
+	margin: 40px auto;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
 }
 
 .settings-panel h2 {
-  font-size: 1.5em;
-  font-weight: bold;
-  margin-bottom: 24px;
-  color: #333;
+	font-size: 1.5em;
+	font-weight: bold;
+	margin-bottom: 24px;
+	/* color: #333; */
+/* color: #ddd; */
+/* } */
+.settings-panel {
+	/* A very light grey background, common in Apple UI */
+	background: #f2f2f2;
+	border-radius: 14px;
+	border: 1px solid #e5e5e5;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+	/* Remove backdrop-filter for a solid, modern look */
+	backdrop-filter: none;
+	-webkit-backdrop-filter: none;
+
+	margin: 40px auto;
+	padding: 20px; /* Add padding to the outside */
+	width: 100%;
+	max-width: 600px; /* Constrain width for better layout */
+	display: flex;
+	flex-direction: column;
+}
+
+.settings-panel h2.panel-title {
+	font-size: 1.2em; /* Slightly smaller for a cleaner look */
+	font-weight: 600; /* Semibold is standard */
+	margin-bottom: 20px;
+	color: #1d1d1f; /* Apple's primary dark text color */
+	text-align: left;
+	padding-left: 5px;
 }
 
 .event-list {
-  width: 100%;
-  margin-bottom: 24px;
+	width: 100%;
+	margin-bottom: 24px;
 }
 
 .event-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: rgba(255,255,255,0.5);
-  border-radius: 12px;
-  padding: 10px 16px;
-  margin-bottom: 10px;
-  font-size: 1em;
-  color: #333;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	background: rgba(255, 255, 255, 0.5);
+	border-radius: 12px;
+	padding: 10px 16px;
+	margin-bottom: 10px;
+	font-size: 1em;
+	color: #333;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
 }
 
 .delete-event {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: #ff4d4f;
-  font-size: 1.2em;
-  padding: 5px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: color 0.3s ease;
+	background: none;
+	border: none;
+	cursor: pointer;
+	color: #ff4d4f;
+	font-size: 1.2em;
+	padding: 5px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: color 0.3s ease;
 }
 .delete-event:hover {
-  color: #cc0000;
+	color: #cc0000;
 }
 
 .back-button {
-  margin-top: 24px;
-  background: rgba(0, 123, 255, 0.9);
-  color: #fff;
-  border: none;
-  border-radius: 12px;
-  padding: 12px 28px;
-  font-size: 1.1em;
-  font-weight: 500;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  cursor: pointer;
-  transition: background 0.2s, box-shadow 0.2s;
-  outline: none;
+	margin-top: 24px;
+	background: rgba(0, 123, 255, 0.9);
+	color: #fff;
+	border: none;
+	border-radius: 12px;
+	padding: 12px 28px;
+	font-size: 1.1em;
+	font-weight: 500;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+	cursor: pointer;
+	transition: background 0.2s, box-shadow 0.2s;
+	outline: none;
 }
-.back-button:hover, .back-button:focus {
-  background: #0056b3;
-  box-shadow: 0 4px 16px rgba(0,123,255,0.12);
+.back-button:hover,
+.back-button:focus {
+	background: #0056b3;
+	box-shadow: 0 4px 16px rgba(0, 123, 255, 0.12);
 }
 
 .water-settings-section {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  margin-top: 20px;
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+	margin-top: 20px;
 }
 
 .water-interval-setting {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+	display: flex;
+	align-items: center;
+	gap: 10px;
 }
 
 .water-interval-setting label {
-  font-size: 1em;
-  color: #333;
-  white-space: nowrap;
+	font-size: 1em;
+	color: #333;
+	white-space: nowrap;
 }
 
 .water-interval-input {
-  background: rgba(255, 255, 255, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 8px;
-  padding: 8px 12px;
-  font-size: 1em;
-  color: #333;
-  width: 80px;
-  text-align: center;
-  -moz-appearance: textfield;
+	background: rgba(255, 255, 255, 0.5);
+	border: 1px solid rgba(255, 255, 255, 0.3);
+	border-radius: 8px;
+	padding: 8px 12px;
+	font-size: 1em;
+	color: #333;
+	width: 80px;
+	text-align: center;
+	-moz-appearance: textfield;
 }
 
 .water-interval-input::-webkit-outer-spin-button,
 .water-interval-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+	-webkit-appearance: none;
+	margin: 0;
 }
 
 .water-active-setting {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+	display: flex;
+	align-items: center;
+	gap: 10px;
 }
 
 .water-active-setting label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 1em;
-  color: #333;
-  cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 1em;
+	color: #333;
+	cursor: pointer;
 }
 
 .water-active-setting input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  border: 2px solid #007aff;
-  border-radius: 4px;
-  appearance: none;
-  -webkit-appearance: none;
-  cursor: pointer;
-  position: relative;
-  transition: all 0.2s ease;
+	width: 18px;
+	height: 18px;
+	border: 2px solid #007aff;
+	border-radius: 4px;
+	appearance: none;
+	-webkit-appearance: none;
+	cursor: pointer;
+	position: relative;
+	transition: all 0.2s ease;
 }
 
 .water-active-setting input[type="checkbox"]:checked {
-  background: #007aff;
+	background: #007aff;
 }
 
 .water-active-setting input[type="checkbox"]:checked::after {
-  content: '✓';
-  position: absolute;
-  color: white;
-  font-size: 14px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+	content: "✓";
+	position: absolute;
+	color: white;
+	font-size: 14px;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
 }
 
 .save-water-settings-button {
-  background: rgba(0, 123, 255, 0.9);
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 10px 20px;
-  font-size: 1em;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  align-self: flex-start;
+	background: rgba(0, 123, 255, 0.9);
+	color: #fff;
+	border: none;
+	border-radius: 8px;
+	padding: 10px 20px;
+	font-size: 1em;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	align-self: flex-start;
 }
 
 .save-water-settings-button:hover {
-  background: #0056b3;
-  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.2);
-} 
+	background: #0056b3;
+	box-shadow: 0 2px 8px rgba(0, 123, 255, 0.2);
+}
+
+/* --- 3. List Item Styling (for Holidays & Anniversaries) --- */
+.holiday-settings-list,
+.event-list {
+	margin: 0;
+	padding: 0;
+	/* Removes the custom scrollbar for a cleaner look unless needed */
+}
+
+.holiday-setting-item,
+.event-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 15px;
+
+	/* Remove individual backgrounds, they are now inside a white card */
+	background: none;
+	box-shadow: none;
+
+	/* Use fine lines to separate items */
+	border-bottom: 1px solid #e5e5e5;
+
+	padding: 14px 5px;
+	margin: 0;
+	transition: background-color 0.15s ease-in-out;
+}
+/* Remove border from the very last item in any list */
+.holiday-setting-item:last-child,
+.event-item:last-child {
+	border-bottom: none;
+}
+/* The requested hover effect */
+.holiday-setting-item:hover,
+.event-item:hover {
+	background-color: #f5f5f5; /* A subtle grey darkens the row */
+}
+
+/* Round the corners of the first and last items to match the container */
+.holiday-setting-item:first-child,
+.event-item:first-child {
+	border-top-left-radius: 12px;
+	border-top-right-radius: 12px;
+}
+.holiday-setting-item:last-child,
+.event-item:last-child {
+	border-bottom-left-radius: 12px;
+	border-bottom-right-radius: 12px;
+}
+
+/* .holiday-setting-item:hover {
+	background-color: rgba(248, 235, 235, 0.96);
+} */
+
+.holiday-setting-item:last-child {
+	border-bottom: none;
+}
+
+.holiday-name {
+	flex-basis: 45%; /* Give more space to the name */
+	/* font-weight: 200; */
+	color: #333;
+	padding-left: 5px;
+	/* text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5); */
+}
+
+.holiday-options {
+	display: flex;
+	gap: 20px;
+	justify-content: flex-end;
+	flex-shrink: 0;
+}
+
+/* --- Bulk Toggles at the Top --- */
+.holiday-bulk-actions {
+	display: flex;
+	justify-content: center;
+	gap: 25px;
+	padding: 15px;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+	margin-bottom: 15px;
+}
+
+/* --- Custom Checkbox Styling --- */
+.holiday-options label,
+.holiday-bulk-actions label {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 0.9em;
+	color: #333;
+	cursor: pointer;
+	user-select: none; /* Prevent text selection on click */
+}
+
+/* Hide the default checkbox */
+.holiday-options input[type="checkbox"],
+.holiday-bulk-actions input[type="checkbox"] {
+	appearance: none;
+	border-color: rgba(255, 255, 255, 0.8);
+	background-color: rgba(255, 255, 255, 0.8);
+	-webkit-appearance: none;
+	margin: 0;
+	width: 1.25em;
+	height: 1.25em;
+	border: 2px solid rgba(255, 255, 255, 0.5);
+	border-radius: 4px;
+	cursor: pointer;
+	position: relative;
+	transition: all 0.2s ease;
+}
+
+.holiday-options input[type="checkbox"]:checked,
+.holiday-bulk-actions input[type="checkbox"]:checked {
+	background-color: rgba(255, 255, 255, 0.9);
+	border-color: rgba(255, 255, 255, 0.9);
+}
+
+/* Style for the checked state */
+.holiday-options input[type="checkbox"]:checked,
+.holiday-bulk-actions input[type="checkbox"]:checked {
+	background-color: rgba(255, 255, 255, 0.9);
+	border-color: rgba(255, 255, 255, 0.9);
+}
+
+/* Create the checkmark using a pseudo-element */
+.holiday-options input[type="checkbox"]:checked::before,
+.holiday-bulk-actions input[type="checkbox"]:checked::before {
+	content: "✓";
+	font-size: 1.1em;
+	font-weight: bold;
+	color: #333; /* Dark color for the checkmark */
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	line-height: 1;
+}
+
+/* Hover and active states for better feedback */
+.holiday-options input[type="checkbox"]:hover,
+.holiday-bulk-actions input[type="checkbox"]:hover {
+	border-color: rgba(255, 255, 255, 0.8);
+	background-color: rgba(255, 255, 255, 0.8);
+}
