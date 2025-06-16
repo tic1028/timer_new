@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 // You will get these from your own free Supabase project in the steps below.
 const SUPABASE_URL = "https://ozkkpqyfnvvgppebybvn.supabase.co";
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
-console.log("Does the key exist?", !!SUPABASE_ANON_KEY);
+// console.log("Does the key exist?", !!SUPABASE_ANON_KEY);
 interface ScheduleItem {
 	id: string;
 	text: string;
