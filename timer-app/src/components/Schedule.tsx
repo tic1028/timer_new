@@ -3,9 +3,7 @@ import React, { useState, useEffect } from "react";
 // --- CONFIGURATION FOR A NEW, RELIABLE SERVICE (SUPABASE) ---
 // You will get these from your own free Supabase project in the steps below.
 const SUPABASE_URL = "https://ozkkpqyfnvvgppebybvn.supabase.co";
-const SUPABASE_ANON_KEY =
-	"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im96a2twcXlmbnZ2Z3BwZWJ5YnZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAxMDgyNDYsImV4cCI6MjA2NTY4NDI0Nn0.tQ2MXClFDs8tRTIjKJU1-M7mLaDplwAiswb1Kapqvm4";
-
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
 interface ScheduleItem {
 	id: string;
 	text: string;
