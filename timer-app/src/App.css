@@ -1970,3 +1970,30 @@ body {
 .react-calendar__tile.day-off:hover {
 	background-color: #fff9c4;
 }
+
+@media (max-width: 1280px) {
+	.app-container {
+		/* Reduce the padding from the screen edges for a tighter fit */
+		padding: 20px;
+	}
+
+	.glass-panel.main-panel {
+		/* THIS IS THE KEY CHANGE: */
+		/* It allows the panel to expand beyond 1200px and use more space. */
+		max-width: 100%;
+
+		/* These are the other layout optimizations for this size */
+		grid-template-columns: 1fr 0.8fr;
+		gap: 15px;
+		padding: 25px;
+	}
+
+	.tool-grid {
+		grid-template-columns: repeat(2, 1fr);
+		gap: 10px;
+	}
+
+	.timer-display {
+		font-size: 3.5em;
+	}
+}

@@ -175,7 +175,7 @@ function App() {
 								onEatWhatClick={handleEatWhatClick}
 							/>
 							<Notes />
-							<WoodenFish />
+							{/* <WoodenFish /> */}
 						</div>
 					</div>
 				</div>
